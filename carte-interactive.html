@@ -1,0 +1,1192 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Carte interactive</title>
+    <style>
+        @font-face {
+            font-family: 'BouyguesRead';
+            src: url('fonts/BouyguesRead-Regular.woff2') format('woff2'),
+                url('fonts/BouyguesRead-Regular.woff') format('woff'),
+                url('fonts/BouyguesRead-Medium.woff2') format('woff2'),
+                url('fonts/BouyguesRead-Medium.woff') format('woff'), ;
+            font-weight: normal;
+            font-style: normal;
+            font-display: swap;
+        }
+
+        @font-face {
+            font-family: 'BouyguesSpeak';
+            src: url('fonts/BouyguesSpeak.woff2') format('woff2'),
+                url('fonts/BouyguesSpeak.woff') format('woff');
+            font-weight: normal;
+            font-style: normal;
+            font-display: swap;
+        }
+
+        body {
+            font-family: sans-serif;
+            margin: 0px;
+            background-color: white;
+            font-family: 'BouyguesRead', sans-serif;
+
+        }
+
+        .controls {
+            margin-bottom: 20px;
+        }
+
+        .controls label {
+            margin-right: 10px;
+        }
+
+        .fitlers-list {
+            margin: 8px 10px 16px 10px;
+        }
+
+        .container {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            flex-wrap: wrap;
+            height: 100vh;
+        }
+
+
+        .event {
+            fill: #D9642D;
+        }
+
+        .music {
+            fill: #2D455D;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        .list-container {
+            width: 50%;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .city-list {
+            flex: 1;
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            text-align: left;
+            overflow: auto;
+            padding-top: 24px;
+        }
+
+        .map {
+            width: 50%;
+            height: 100vh;
+            background-color: #EBF2F4;
+        }
+
+        .filters {
+            flex: 0 0 auto;
+            max-width: 700px;
+            width: 500px;
+            background-color: white;
+            margin-top: 48px;
+            margin-right: 114px;
+            margin-left: auto;
+        }
+
+        .filter-title {
+            margin-left: 10px;
+            margin-right: 10px;
+            color: #2D455D;
+            font-size: 14px;
+        }
+
+        .filter-button {
+            background-color: #F1F1F1;
+            color: #838487;
+            border-radius: 100px;
+            padding: 8px 16px;
+            border: none;
+            font-size: 16px;
+            transition: background-color 0.3s ease;
+            margin-right: 2px;
+            margin-bottom: 8px;
+        }
+
+        .filter-button:hover {
+            background-color: #59B6D3;
+            color: white;
+        }
+
+        .active {
+            background-color: #59B6D3;
+            color: white;
+        }
+
+        .scrollable-list {
+            overflow-y: auto;
+            flex: 1 1 auto;
+            background: #fff;
+            max-width: 700px;
+            width: 500px;
+            margin-right: 114px;
+            margin-left: auto;
+        }
+
+        .city-list li.hovered {
+            border: 1px solid #6FBDD7;
+        }
+
+        .element {
+            display: flex;
+            flex-direction: column;
+            color: #2D455D;
+            margin-bottom: 12px;
+            gap: 4px;
+            background-color: white;
+            filter: drop-shadow(rgba(0, 0, 0, 0.1) 0 1px 4px);
+            margin-left: 10px;
+            margin-right: 10px;
+            border: 1px solid white;
+            transition: all 0.3s ease;
+            padding: 16px;
+            border-radius: 8px;
+        }
+
+        .element-title {
+            font-weight: 800;
+            font-size: 18px;
+            font-family: 'BouyguesSpeak', sans-serif;
+        }
+
+        .divider {
+            width: calc(100% - 20px);
+            height: 1px;
+            background-color: #F1F1F1;
+            display: block;
+            margin: 0 10px 0 10px;
+        }
+
+        .point {
+            height: 8px;
+            width: 8px;
+            border-radius: 100px;
+            margin-right: 10px;
+            display: inline-block;
+            margin-bottom: 1px;
+        }
+
+        .point-blue {
+            background-color: #2D455D;
+        }
+
+        .point-orange {
+            background-color: #D9642D;
+        }
+
+
+        @media (max-width: 1024px) {
+            .map {
+                display: none;
+            }
+
+            .list-container {
+                margin: auto;
+                width: 100%;
+            }
+
+            .filters {
+                margin-top: 24px;
+                margin-right: auto;
+                max-width: 100%;
+            }
+
+            .scrollable-list {
+                margin-right: auto;
+                max-width: 100%;
+            }
+
+            .container {
+                justify-content: center;
+            }
+
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="container">
+
+        <div class="list-container">
+
+            <div class="filters">
+                <span class="filter-title">Régions</span>
+                <div class="zoom-buttons fitlers-list">
+                    <button class="filter-button zoom-button active" onclick="zoomTo('reset', this)">Toute la
+                        France</button>
+                    <button class="filter-button zoom-button" onclick="zoomTo('Paris', this)">Ile de France</button>
+                    <button class="filter-button zoom-button" onclick="zoomTo('Ouest', this)">Grand-Ouest</button>
+                    <button class="filter-button zoom-button" onclick="zoomTo('Nord', this)">Nord / Nord-Est</button>
+                    <button class="filter-button zoom-button" onclick="zoomTo('Sud', this)">Sud-Est</button>
+                </div>
+                <span class="filter-title">Filtrer par</span>
+                <div class="controls fitlers-list">
+                    <button class="filter-button filter-btn active" data-filter="all"
+                        onclick="setFilter('all')">Tous</button>
+                    <button class="filter-button filter-btn" data-filter="music" onclick="setFilter('music')"><span
+                            class="point point-blue"></span>Musique et festivals</button>
+                    <button class="filter-button filter-btn" data-filter="event" onclick="setFilter('event')"><span
+                            class="point point-orange"></span>Autres événements</button>
+                </div>
+                <span class="divider"></span>
+
+            </div>
+
+            <div class="scrollable-list">
+                <ul class="city-list">
+                    <li class="element" data-ville="Vincennes" data-type="music" data-region="Paris">
+                        <span class="element-title">We Love Green</span>
+                        <span class="element-subtitle">Vincennes (94)</span>
+                    </li>
+                    <li class="element" data-ville="Torcy" data-type="music" data-region="Paris">
+                        <span class="element-title">Marvellous island festival</span>
+                        <span class="element-subtitle">Torcy (77)</span>
+                    </li>
+                    <li class="element" data-ville="Sceaux" data-type="event" data-region="Paris">
+                        <span class="element-title">Pokemon Go</span>
+                        <span class="element-subtitle">Sceaux (92)</span>
+                    </li>
+                    <li class="element" data-ville="Bourget" data-type="event" data-region="Paris">
+                        <span class="element-title">Salon international de l'aéronautique et de l'espace</span>
+                        <span class="element-subtitle">Le Bourget (93)</span>
+                    </li>
+                    <li class="element" data-ville="Boulogne1" data-type="music" data-region="Paris">
+                        <span class="element-title">Solidays</span>
+                        <span class="element-subtitle">Boulogne (92)</span>
+                    </li>
+                    <li class="element" data-ville="Paris" data-type="music" data-region="Paris">
+                        <span class="element-title">Lollapalooza</span>
+                        <span class="element-subtitle">Paris (75)</span>
+                    </li>
+                    <li class="element" data-ville="SaintCloud" data-type="music" data-region="Paris">
+                        <span class="element-title">Rock en Seine</span>
+                        <span class="element-subtitle">Saint-Cloud (92)</span>
+                    </li>
+                    <li class="element" data-ville="Chatou" data-type="music" data-region="Paris">
+                        <span class="element-title">Elektric Park Festival</span>
+                        <span class="element-subtitle">Chatou (78)</span>
+                    </li>
+                    <li class="element" data-ville="Courneuve" data-type="event" data-region="Paris">
+                        <span class="element-title">La Fête de l'Humanité</span>
+                        <span class="element-subtitle">Courneuve (93)</span>
+                    </li>
+                    <li class="element" data-ville="Boulogne2" data-type="event" data-region="Paris">
+                        <span class="element-title">Qatar Prix l'Arc de Triomphe</span>
+                        <span class="element-subtitle">Boulogne (92)</span>
+                    </li>
+                    <li class="element" data-ville="Touquet1" data-type="event" data-region="Nord">
+                        <span class="element-title">Enduropale</span>
+                        <span class="element-subtitle">Le Touquet-Paris-Plage (62)</span>
+                    </li>
+                    <li class="element" data-ville="Berck" data-type="event" data-region="Nord">
+                        <span class="element-title">Rencontres internationales de cerfs-volants</span>
+                        <span class="element-subtitle">Berck (62)</span>
+                    </li>
+                    <li class="element" data-ville="Sermamagny" data-type="music" data-region="Nord">
+                        <span class="element-title">Les Eurockéennes de belfort</span>
+                        <span class="element-subtitle">Sermamagny (90)</span>
+                    </li>
+                    <li class="element" data-ville="Arras" data-type="music" data-region="Nord">
+                        <span class="element-title">Main Square Festival</span>
+                        <span class="element-subtitle">Arras (62)</span>
+                    </li>
+                    <li class="element" data-ville="Dunkerque" data-type="event" data-region="Nord">
+                        <span class="element-title">Voiles de légende</span>
+                        <span class="element-subtitle">Dunkerque (59)</span>
+                    </li>
+                    <li class="element" data-ville="AulnoyeAymeries" data-type="music" data-region="Nord">
+                        <span class="element-title">Les Nuits secrètes</span>
+                        <span class="element-subtitle">Aulnoye-Aymeries (59)</span>
+                    </li>
+                    <li class="element" data-ville="Chambley" data-type="event" data-region="Nord">
+                        <span class="element-title">Enenvol</span>
+                        <span class="element-subtitle">Chambley (54)</span>
+                    </li>
+                    <li class="element" data-ville="Touquet2" data-type="music" data-region="Nord">
+                        <span class="element-title">Touquet Music Beach Festival</span>
+                        <span class="element-subtitle">Le Touquet-Paris-Plage (62)</span>
+                    </li>
+                    <li class="element" data-ville="Poussay" data-type="event" data-region="Nord">
+                        <span class="element-title">Foire de Poussay</span>
+                        <span class="element-subtitle">Poussay (88)</span>
+                    </li>
+                    <li class="element" data-ville="Annecy" data-type="event" data-region="Sud">
+                        <span class="element-title">Festival du Film d'Animation</span>
+                        <span class="element-subtitle">Annecy (88)</span>
+                    </li>
+                    <li class="element" data-ville="SaintVulbas" data-type="music" data-region="Sud">
+                        <span class="element-title">Le Printemps de Pérouges</span>
+                        <span class="element-subtitle">Saint-Vulbas (01)</span>
+                    </li>
+                    <li class="element" data-ville="Ruoms" data-type="music" data-region="Sud">
+                        <span class="element-title">Aluna Festival</span>
+                        <span class="element-subtitle">Ruoms (07)</span>
+                    </li>
+                    <li class="element" data-ville="AixlesBains" data-type="music" data-region="Sud">
+                        <span class="element-title">Musilac</span>
+                        <span class="element-subtitle">Aix-les-Bains (73)</span>
+                    </li>
+                    <li class="element" data-ville="Bagnols" data-type="event" data-region="Sud">
+                        <span class="element-title">Festival des aquarellistes</span>
+                        <span class="element-subtitle">Bagnols (63)</span>
+                    </li>
+                    <li class="element" data-ville="Fraisans" data-type="music" data-region="Nord">
+                        <span class="element-title">Festival No Logo</span>
+                        <span class="element-subtitle">Fraisans (39)</span>
+                    </li>
+                    <li class="element" data-ville="Vieure" data-type="event" data-region="Sud">
+                        <span class="element-title">Hadra Trance Festival</span>
+                        <span class="element-subtitle">Vieure (03)</span>
+                    </li>
+                    <li class="element" data-ville="Dijon" data-type="music" data-region="Nord">
+                        <span class="element-title">Golden Coast festival</span>
+                        <span class="element-subtitle">Dijon (21)</span>
+                    </li>
+                    <li class="element" data-ville="ClermontFerrand" data-type="event" data-region="Sud">
+                        <span class="element-title">Sommet de l'Élevage</span>
+                        <span class="element-subtitle">Clermont-Ferrand (63)</span>
+                    </li>
+                    <li class="element" data-ville="Menton" data-type="event" data-region="Sud">
+                        <span class="element-title">Fête du citron</span>
+                        <span class="element-subtitle">Menton (06)</span>
+                    </li>
+                    <li class="element" data-ville="Leucate" data-type="event" data-region="Sud">
+                        <span class="element-title">Mondial du vent</span>
+                        <span class="element-subtitle">Leucate (11)</span>
+                    </li>
+                    <li class="element" data-ville="Cannes1" data-type="event" data-region="Sud">
+                        <span class="element-title">Festival de Cannes</span>
+                        <span class="element-subtitle">Cannes (06)</span>
+                    </li>
+                    <li class="element" data-ville="Montpellier" data-type="event" data-region="Sud">
+                        <span class="element-title">FISE</span>
+                        <span class="element-subtitle">Montpellier (34)</span>
+                    </li>
+                    <li class="element" data-ville="Nice1" data-type="event" data-region="Sud">
+                        <span class="element-title">Conférence des Nations unies sur l’Océan</span>
+                        <span class="element-subtitle">Nice (06)</span>
+                    </li>
+                    <li class="element" data-ville="Barcarès" data-type="music" data-region="Sud">
+                        <span class="element-title">Les Déferlantes</span>
+                        <span class="element-subtitle">Le Barcarès (66)</span>
+                    </li>
+
+                    <li class="element" data-ville="Vitrolles" data-type="music" data-region="Sud">
+                        <span class="element-title">Jardin Sonore Festival</span>
+                        <span class="element-subtitle">Vitrolles (13)</span>
+                    </li>
+                    <li class="element" data-ville="Barcares2" data-type="music" data-region="Sud">
+                        <span class="element-title">Electrobeach</span>
+                        <span class="element-subtitle">Le Barcarès (66)</span>
+                    </li>
+                    <li class="element" data-ville="Cannes2" data-type="music" data-region="Sud">
+                        <span class="element-title">Les Plages Électroniques</span>
+                        <span class="element-subtitle">Cannes (06)</span>
+                    </li>
+                    <li class="element" data-ville="Montpellier2" data-type="music" data-region="Sud">
+                        <span class="element-title">Palmarosa Festival</span>
+                        <span class="element-subtitle">Montpellier (34)</span>
+                    </li>
+                    <li class="element" data-ville="Clisson" data-type="music" data-region="Ouest">
+                        <span class="element-title">Hellfest</span>
+                        <span class="element-subtitle">Clisson (44)</span>
+                    </li>
+                    <li class="element" data-ville="Chambord" data-type="music" data-region="Nord">
+                        <span class="element-title">Chambord live 2025</span>
+                        <span class="element-subtitle">Chambord (27)</span>
+                    </li>
+                    <li class="element" data-ville="SaintMaloduBois" data-type="music" data-region="Ouest">
+                        <span class="element-title">Festival de Poupet</span>
+                        <span class="element-subtitle">Saint-Malô-du-Bois (85)</span>
+                    </li>
+                    <li class="element" data-ville="HerouvilleSaintClair" data-type="music" data-region="Nord">
+                        <span class="element-title">Festival Beauregard</span>
+                        <span class="element-subtitle">Hérouville-Saint-Clair (14)</span>
+                    </li>
+                    <li class="element" data-ville="CarhaixPlouguer1" data-type="music" data-region="Ouest">
+                        <span class="element-title">Festival des Vieilles Charrues</span>
+                        <span class="element-subtitle">Carhaix-Plouguer (29)</span>
+                    </li>
+                    <li class="element" data-ville="Lorient" data-type="music" data-region="Ouest">
+                        <span class="element-title">Festival interceltique</span>
+                        <span class="element-subtitle">Lorient (56)</span>
+                    </li>
+                    <li class="element" data-ville="Mayenne" data-type="music" data-region="Ouest">
+                        <span class="element-title">V&B Fest'</span>
+                        <span class="element-subtitle">Château-Gontier-sur-Mayenne (53)</span>
+                    </li>
+                    <li class="element" data-ville="SaintLaurentdeCuves" data-type="music" data-region="Nord">
+                        <span class="element-title">Festival Papillons de nuit</span>
+                        <span class="element-subtitle">Saint-Laurent-de-Cuves (50)</span>
+                    </li>
+                    <li class="element" data-ville="Evreux" data-type="music" data-region="Nord">
+                        <span class="element-title">Rock in Evreux</span>
+                        <span class="element-subtitle">Evreux (27)</span>
+                    </li>
+                    <li class="element" data-ville="NortsurErdre" data-type="music" data-region="Ouest">
+                        <span class="element-title">La Nuit De l’Erdre</span>
+                        <span class="element-subtitle">Nort-sur-Erdre (44)</span>
+                    </li>
+                    <li class="element" data-ville="SaintAndreLesLille" data-type="music" data-region="Nord">
+                        <span class="element-title">Terres du Son</span>
+                        <span class="element-subtitle">Saint-André-Les-Lille (59)</span>
+                    </li>
+                    <li class="element" data-ville="Crozon" data-type="music" data-region="Ouest">
+                        <span class="element-title">Festival du bout du monde</span>
+                        <span class="element-subtitle">Crozon (29)</span>
+                    </li>
+                    <li class="element" data-ville="Paimpol" data-type="music" data-region="Ouest">
+                        <span class="element-title">Festival du chant de marin</span>
+                        <span class="element-subtitle">Paimpol (22)</span>
+                    </li>
+                    <li class="element" data-ville="Landerneau" data-type="music" data-region="Ouest">
+                        <span class="element-title">Fête du bruit</span>
+                        <span class="element-subtitle">Landerneau (29)</span>
+                    </li>
+                    <li class="element" data-ville="CarhaixPlouguer2" data-type="music" data-region="Ouest">
+                        <span class="element-title">Motocultor Festival</span>
+                        <span class="element-subtitle">Carhaix-Plouguer (29)</span>
+                    </li>
+                    <li class="element" data-ville="BrealsousMontfort" data-type="music" data-region="Ouest">
+                        <span class="element-title">Festival du roi Arthur</span>
+                        <span class="element-subtitle">Bréal-sous-Montfort (35)</span>
+                    </li>
+
+                    <li class="element" data-ville="LeMans1" data-type="event" data-region="Ouest">
+                        <span class="element-title">24 Heures Motos</span>
+                        <span class="element-subtitle">Le Mans (72)</span>
+                    </li>
+                    <li class="element" data-ville="LeMans2" data-type="event" data-region="Ouest">
+                        <span class="element-title">Grand Prix de France Moto</span>
+                        <span class="element-subtitle">Le Mans (72)</span>
+                    </li>
+                    <li class="element" data-ville="Loheac1" data-type="event" data-region="Ouest">
+                        <span class="element-title">Legend Festival</span>
+                        <span class="element-subtitle">Lohéac (35)</span>
+                    </li>
+                    <li class="element" data-ville="LeMans3" data-type="event" data-region="Ouest">
+                        <span class="element-title">24 Heures du Mans</span>
+                        <span class="element-subtitle">Le Mans (72)</span>
+                    </li>
+                    <li class="element" data-ville="LamotteBeuvron1" data-type="event" data-region="Nord">
+                        <span class="element-title">Game Fair</span>
+                        <span class="element-subtitle">Lamotte-Beuvron (41)</span>
+                    </li>
+                    <li class="element" data-ville="LeMans4" data-type="event" data-region="Ouest">
+                        <span class="element-title">Le Mans Classic</span>
+                        <span class="element-subtitle">Le Mans (72)</span>
+                    </li>
+                    <li class="element" data-ville="MurdeBretagne" data-type="event" data-region="Ouest">
+                        <span class="element-title">TDF 2025 - étape 7</span>
+                        <span class="element-subtitle">Mûr de Bretagne (22)</span>
+                    </li>
+                    <li class="element" data-ville="LamotteBeuvron2" data-type="event" data-region="Nord">
+                        <span class="element-title">Championnats d'Europe de Pony-Games</span>
+                        <span class="element-subtitle">Lamotte-Beuvron (41)</span>
+                    </li>
+                    <li class="element" data-ville="Loheac2" data-type="event" data-region="Ouest">
+                        <span class="element-title">RallyCross de Lohéac</span>
+                        <span class="element-subtitle">Lohéac (35)</span>
+                    </li>
+                    <li class="element" data-ville="LamotteBeuvron3" data-type="event" data-region="Nord">
+                        <span class="element-title">Nuits de Sologne</span>
+                        <span class="element-subtitle">Lamotte-Beuvron (41)</span>
+                    </li>
+                    <li class="element" data-ville="LeMans5" data-type="event" data-region="Ouest">
+                        <span class="element-title">GP Explorer</span>
+                        <span class="element-subtitle">Le Mans (72)</span>
+                    </li>
+                    <li class="element" data-ville="Lessay" data-type="event" data-region="Nord">
+                        <span class="element-title">Foire de Lessay</span>
+                        <span class="element-subtitle">Lessay (50)</span>
+                    </li>
+                    <li class="element" data-ville="LeMans6" data-type="event" data-region="Ouest">
+                        <span class="element-title">24 heures Camions</span>
+                        <span class="element-subtitle">Le Mans (72)</span>
+                    </li>
+                    <li class="element" data-ville="Bourges" data-type="music" data-region="Nord">
+                        <span class="element-title">Printemps de Bourges</span>
+                        <span class="element-subtitle">Bourges (18)</span>
+                    </li>
+                    <li class="element" data-ville="Laval" data-type="music" data-region="Ouest">
+                        <span class="element-title">Les 3 Éléphants</span>
+                        <span class="element-subtitle">Laval (53)</span>
+                    </li>
+                    <li class="element" data-ville="Ernee" data-type="event" data-region="Ouest">
+                        <span class="element-title">Grand Prix de France MXGP</span>
+                        <span class="element-subtitle">Ernée (53)</span>
+                    </li>
+                    <li class="element" data-ville="Deauville" data-type="event" data-region="Nord">
+                        <span class="element-title">Festival du cinéma américain</span>
+                        <span class="element-subtitle">Deauville (14)</span>
+                    </li>
+                    <li class="element" data-ville="Rennes" data-type="event" data-region="Ouest">
+                        <span class="element-title">SPACE Rennes</span>
+                        <span class="element-subtitle">Rennes (35)</span>
+                    </li>
+
+                    <li class="element" data-ville="Bayonne1" data-type="event" data-region="Ouest">
+                        <span class="element-title">Fêtes de Bayonne</span>
+                        <span class="element-subtitle">Bayonne (64)</span>
+                    </li>
+                    <li class="element" data-ville="Bayonne2" data-type="event" data-region="Ouest">
+                        <span class="element-title">Foire au Jambon</span>
+                        <span class="element-subtitle">Bayonne (64)</span>
+                    </li>
+                    <li class="element" data-ville="Marmande" data-type="music" data-region="Ouest">
+                        <span class="element-title">Garorock</span>
+                        <span class="element-subtitle">Marmande (47)</span>
+                    </li>
+                    <li class="element" data-ville="Toulouse1" data-type="event" data-region="Sud">
+                        <span class="element-title">Rio Loco</span>
+                        <span class="element-subtitle">Toulouse (31)</span>
+                    </li>
+                    <li class="element" data-ville="Talence" data-type="music" data-region="Ouest">
+                        <span class="element-title">Festival ODP</span>
+                        <span class="element-subtitle">Talence (33)</span>
+                    </li>
+                    <li class="element" data-ville="Bordeaux1" data-type="event" data-region="Ouest">
+                        <span class="element-title">Bordeaux Fête le Vin</span>
+                        <span class="element-subtitle">Bordeaux (33)</span>
+                    </li>
+                    <li class="element" data-ville="Montendre" data-type="music" data-region="Ouest">
+                        <span class="element-title">Freemusic Festival</span>
+                        <span class="element-subtitle">Montendre (17)</span>
+                    </li>
+                    <li class="element" data-ville="Perigueux" data-type="event" data-region="Ouest">
+                        <span class="element-title">Félibrée</span>
+                        <span class="element-subtitle">Périgueux (24)</span>
+                    </li>
+                    <li class="element" data-ville="Lacanau" data-type="event" data-region="Ouest">
+                        <span class="element-title">Lacanau Pro</span>
+                        <span class="element-subtitle">Lacanau (33)</span>
+                    </li>
+                    <li class="element" data-ville="SaintLoubes" data-type="event" data-region="Ouest">
+                        <span class="element-title">Festival du jeu</span>
+                        <span class="element-subtitle">Saint-Loubès (33)</span>
+                    </li>
+                    <li class="element" data-ville="LaRochelle1" data-type="music" data-region="Ouest">
+                        <span class="element-title">Francofolies</span>
+                        <span class="element-subtitle">La Rochelle (17)</span>
+                    </li>
+                    <li class="element" data-ville="SaintBernard" data-type="music" data-region="Sud">
+                        <span class="element-title">Festival Country</span>
+                        <span class="element-subtitle">Saint-Bernard (01)</span>
+                    </li>
+                    <li class="element" data-ville="Commercy" data-type="event" data-region="Nord">
+                        <span class="element-title">Féria de la Madeleine</span>
+                        <span class="element-subtitle">Commercy (55)</span>
+                    </li>
+                    <li class="element" data-ville="BrivelaGaillarde" data-type="music" data-region="Ouest">
+                        <span class="element-title">Brive Festival</span>
+                        <span class="element-subtitle">Brive-la-Gaillarde (19)</span>
+                    </li>
+                    <li class="element" data-ville="Royan" data-type="music" data-region="Ouest">
+                        <span class="element-title">Un violon sur le sable</span>
+                        <span class="element-subtitle">Royan (17)</span>
+                    </li>
+                    <li class="element" data-ville="SaintVincentdeTyrosse" data-type="event" data-region="Ouest">
+                        <span class="element-title">Fêtes de Tyrosse</span>
+                        <span class="element-subtitle">Saint-Vincent-de-Tyrosse (40)</span>
+                    </li>
+                    <li class="element" data-ville="VicFezensac1" data-type="music" data-region="Sud">
+                        <span class="element-title">Tempo latino</span>
+                        <span class="element-subtitle">Vic-Fezensac (32)</span>
+                    </li>
+                    <li class="element" data-ville="Civray" data-type="music" data-region="Nord">
+                        <span class="element-title">Festival Au fil du son</span>
+                        <span class="element-subtitle">Civray (18)</span>
+                    </li>
+                    <li class="element" data-ville="Luxey" data-type="music" data-region="Ouest">
+                        <span class="element-title">Musicalarue</span>
+                        <span class="element-subtitle">Luxey (40)</span>
+                    </li>
+                    <li class="element" data-ville="Vertheuil" data-type="music" data-region="Ouest">
+                        <span class="element-title">SunSka Festival</span>
+                        <span class="element-subtitle">Vertheuil (33)</span>
+                    </li>
+                    <li class="element" data-ville="Dax1" data-type="event" data-region="Ouest">
+                        <span class="element-title">Féria de Dax</span>
+                        <span class="element-subtitle">Dax (40)</span>
+                    </li>
+                    <li class="element" data-ville="Meett" data-type="music" data-region="Sud">
+                        <span class="element-title">Le Rose Festival</span>
+                        <span class="element-subtitle">Meett (31)</span>
+                    </li>
+                    <li class="element" data-ville="Bordeaux2" data-type="music" data-region="Ouest">
+                        <span class="element-title">Initial Festival</span>
+                        <span class="element-subtitle">Bordeaux (33)</span>
+                    </li>
+                    <li class="element" data-ville="Dax2" data-type="music" data-region="Ouest">
+                        <span class="element-title">Toros y Salsa</span>
+                        <span class="element-subtitle">Dax (40)</span>
+                    </li>
+                    <li class="element" data-ville="Bordeaux3" data-type="music" data-region="Ouest">
+                        <span class="element-title">Hypnotize Festival</span>
+                        <span class="element-subtitle">Bordeaux (33)</span>
+                    </li>
+                    <li class="element" data-ville="LaRochelle2" data-type="evnet" data-region="Ouest">
+                        <span class="element-title">Le Grand Pavois</span>
+                        <span class="element-subtitle">La Rochelle (17)</span>
+                    </li>
+
+                    <li class="element" data-ville="Begles1" data-type="music" data-region="Ouest">
+                        <span class="element-title">Green Paradize</span>
+                        <span class="element-subtitle">Bégles (33)</span>
+                    </li>
+                    <li class="element" data-ville="Angouleme" data-type="event" data-region="Ouest">
+                        <span class="element-title">Festival de la BD</span>
+                        <span class="element-subtitle">Angoulème (16)</span>
+                    </li>
+                    <li class="element" data-ville="Toulouse2" data-type="event" data-region="Sud">
+                        <span class="element-title">Foire internationale de Toulouse</span>
+                        <span class="element-subtitle">Toulouse (31)</span>
+                    </li>
+                    <li class="element" data-ville="SaintPeesurNivelle" data-type="event" data-region="Ouest">
+                        <span class="element-title">Euskararen aldeko bestak</span>
+                        <span class="element-subtitle">Saint-Pée-sur-Nivelle (64)</span>
+                    </li>
+                    <li class="element" data-ville="Bordeaux4" data-type="event" data-region="Ouest">
+                        <span class="element-title">Foire de Bordeaux</span>
+                        <span class="element-subtitle">Bordeaux (33)</span>
+                    </li>
+                    <li class="element" data-ville="Carcans" data-type="event" data-region="Ouest">
+                        <span class="element-title">Frenchman Triathlon</span>
+                        <span class="element-subtitle">Carcans (33)</span>
+                    </li>
+                    <li class="element" data-ville="VicFezensac2" data-type="event" data-region="Sud">
+                        <span class="element-title">Pentecôtavic</span>
+                        <span class="element-subtitle">Vic-Fezensac (32)</span>
+                    </li>
+                    <li class="element" data-ville="Begles2" data-type="event" data-region="Ouest">
+                        <span class="element-title">Fête de la Morue</span>
+                        <span class="element-subtitle">Bègles (33)</span>
+                    </li>
+                    <li class="element" data-ville="Monaco1" data-type="event" data-region="Sud">
+                        <span class="element-title">Masters 1000 de Monte-Carlo</span>
+                        <span class="element-subtitle">Monaco</span>
+                    </li>
+                    <li class="element" data-ville="Arles" data-type="event" data-region="Sud">
+                        <span class="element-title">Féria d'Arles</span>
+                        <span class="element-subtitle">Arles (13)</span>
+                    </li>
+                    <li class="element" data-ville="Aixenprovence" data-type="music" data-region="Sud">
+                        <span class="element-title">Festival d'Art Lyrique</span>
+                        <span class="element-subtitle">Aix-en-provence (13)</span>
+                    </li>
+                    <li class="element" data-ville="Cannes3" data-type="event" data-region="Sud">
+                        <span class="element-title">Festival International de la Plaisance</span>
+                        <span class="element-subtitle">Cannes (06)</span>
+                    </li>
+                    <li class="element" data-ville="Monaco2" data-type="event" data-region="Sud">
+                        <span class="element-title">Grand Prix de Formule 1</span>
+                        <span class="element-subtitle">Monaco</span>
+                    </li>
+                    <li class="element" data-ville="Gruissan" data-type="event" data-region="Sud">
+                        <span class="element-title">Défi Wind</span>
+                        <span class="element-subtitle">Gruissan (11)</span>
+                    </li>
+                    <li class="element" data-ville="Nimes1" data-type="event" data-region="Sud">
+                        <span class="element-title">Féria de Pentecôte</span>
+                        <span class="element-subtitle">Nimes (30)</span>
+                    </li>
+                    <li class="element" data-ville="LeCastellet1" data-type="event" data-region="Sud">
+                        <span class="element-title">Grand Prix de France</span>
+                        <span class="element-subtitle">Le Castellet (83)</span>
+                    </li>
+                    <li class="element" data-ville="Orange" data-type="event" data-region="Sud">
+                        <span class="element-title">Chorégies d'Orange</span>
+                        <span class="element-subtitle">Orange (84)</span>
+                    </li>
+                    <li class="element" data-ville="Nice2" data-type="event" data-region="Sud">
+                        <span class="element-title">Iron Man</span>
+                        <span class="element-subtitle">Nice (06)</span>
+                    </li>
+                    <li class="element" data-ville="Carcassonne" data-type="event" data-region="Sud">
+                        <span class="element-title">Festival de Carcassonne</span>
+                        <span class="element-subtitle">Carcassonne (11)</span>
+                    </li>
+                    <li class="element" data-ville="Avignon" data-type="event" data-region="Sud">
+                        <span class="element-title">Festival de théatre d'Avignon</span>
+                        <span class="element-subtitle">Avignon (84)</span>
+                    </li>
+                    <li class="element" data-ville="Nice3" data-type="music" data-region="Sud">
+                        <span class="element-title">Nice Jazz Festival</span>
+                        <span class="element-subtitle">Nice (06)</span>
+                    </li>
+                    <li class="element" data-ville="Millau" data-type="music" data-region="Sud">
+                        <span class="element-title">Millau En Jazz</span>
+                        <span class="element-subtitle">Millau (26)</span>
+                    </li>
+                    <li class="element" data-ville="LaRoqueDAntheron" data-type="music" data-region="Sud">
+                        <span class="element-title">Festival de la Roque d'Anthéron</span>
+                        <span class="element-subtitle">La Roque-D'Anthéron (13)</span>
+                    </li>
+                    <li class="element" data-ville="Beziers" data-type="event" data-region="Sud">
+                        <span class="element-title">Féria de Béziers</span>
+                        <span class="element-subtitle">Béziers (34)</span>
+                    </li>
+                    <li class="element" data-ville="Ales" data-type="event" data-region="Sud">
+                        <span class="element-title">Féria d'Alès</span>
+                        <span class="element-subtitle">Alès (83)</span>
+                    </li>
+                    <li class="element" data-ville="Nimes2" data-type="event" data-region="Sud">
+                        <span class="element-title">Féria des vendanges</span>
+                        <span class="element-subtitle">Nîmes (30)</span>
+                    </li>
+                    <li class="element" data-ville="LeCastellet2" data-type="event" data-region="Sud">
+                        <span class="element-title">Bol d'or</span>
+                        <span class="element-subtitle">Le Castellet (83)</span>
+                    </li>
+                    <li class="element" data-ville="Monaco3" data-type="event" data-region="Sud">
+                        <span class="element-title">Monaco Yachts Show</span>
+                        <span class="element-subtitle">Monaco</span>
+                    </li>
+
+                    <li class="element" data-ville="Sainttropez" data-type="event" data-region="Sud">
+                        <span class="element-title">Les Voiles de Saint-Tropez</span>
+                        <span class="element-subtitle">Saint-Tropez (06)</span>
+                    </li>
+                    <li class="element" data-ville="Marseille" data-type="event" data-region="Sud">
+                        <span class="element-title">Foire de Marseille</span>
+                        <span class="element-subtitle">Marseille (13)</span>
+                    </li>
+                    <li class="element" data-ville="CapdAgde" data-type="event" data-region="Sud">
+                        <span class="element-title">Salon Nautique du Cap d'Agde</span>
+                        <span class="element-subtitle">Cap d'Agde (34)</span>
+                    </li>
+                    <li class="element" data-ville="Cannes4" data-type="music" data-region="Sud">
+                        <span class="element-title">NRJ Music Award</span>
+                        <span class="element-subtitle">Cannes (06)</span>
+                    </li>
+                    <li class="element" data-ville="SixFourslesplages" data-type="event" data-region="Sud">
+                        <span class="element-title">Festival du Gaou</span>
+                        <span class="element-subtitle">Six-Fours-les-plages (83)</span>
+                    </li>
+                    <li class="element" data-ville="Vienne" data-type="music" data-region="Sud">
+                        <span class="element-title">Jazz à Vienne</span>
+                        <span class="element-subtitle">Vienne (38)</span>
+                    </li>
+                    <li class="element" data-ville="Lyon1" data-type="music" data-region="Sud">
+                        <span class="element-title">Nuit sonores</span>
+                        <span class="element-subtitle">Lyon (69)</span>
+                    </li>
+                    <li class="element" data-ville="VaulxenVelin1" data-type="music" data-region="Sud">
+                        <span class="element-title">Woodstower</span>
+                        <span class="element-subtitle">Vaulx-en-Velin (69)</span>
+                    </li>
+                    <li class="element" data-ville="Lyon2" data-type="event" data-region="Sud">
+                        <span class="element-title">Nuits de Fourvière</span>
+                        <span class="element-subtitle">Lyon (69)</span>
+                    </li>
+                    <li class="element" data-ville="Aurillac" data-type="event" data-region="Sud">
+                        <span class="element-title">Festival de théatre de rue</span>
+                        <span class="element-subtitle">Aurillac (15)</span>
+                    </li>
+                    <li class="element" data-ville="ChalonsurSaone" data-type="event" data-region="Nord">
+                        <span class="element-title">Festival de théatre de rue Chalon</span>
+                        <span class="element-subtitle">Chalon-sur-Saône (71)</span>
+                    </li>
+                    <li class="element" data-ville="Nantua" data-type="music" data-region="Sud">
+                        <span class="element-title">Nantua Fest</span>
+                        <span class="element-subtitle">Nantua (01)</span>
+                    </li>
+                    <li class="element" data-ville="Trelins" data-type="music" data-region="Sud">
+                        <span class="element-title">Foreztival</span>
+                        <span class="element-subtitle">Trelins (42)</span>
+                    </li>
+                    <li class="element" data-ville="ThononlesBains" data-type="music" data-region="Sud">
+                        <span class="element-title">Montjoux Festival</span>
+                        <span class="element-subtitle">Thonon-les-Bains (74)</span>
+                    </li>
+                    <li class="element" data-ville="VaulxenVelin2" data-type="music" data-region="Sud">
+                        <span class="element-title">Evasion Festival</span>
+                        <span class="element-subtitle">Vaulx-en-Velin (69)</span>
+                    </li>
+                    <li class="element" data-ville="Lyon3" data-type="music" data-region="Sud">
+                        <span class="element-title">Hypnotize Festival</span>
+                        <span class="element-subtitle">Lyon (69)</span>
+                    </li>
+                    <li class="element" data-ville="LamotteBeuvron4" data-type="event" data-region="Nord">
+                        <span class="element-title">Générali Open de France</span>
+                        <span class="element-subtitle">Lamotte-Beuvron (41)</span>
+                    </li>
+                </ul>
+            </div>
+        </div>
+
+        <svg class="map" id="mapSVG" width="720" height="1024" viewBox="0 0 720 1024" fill="none"
+            xmlns="http://www.w3.org/2000/svg">
+            <rect width="720" height="1024" fill="#EBF2F4" />
+
+            <path
+                d="M585.599 710.783L578.571 712.135L577.084 732.272H574.246L571.813 727.407L563.704 732.272L566.002 736.462H555.596L547.081 753.896L550.865 757.545L546 761.194L549.784 764.438L554.244 773.222L548.027 774.709L549.784 779.304H554.244V788.899L561.677 794.035L556.677 799.711L561.677 805.117H569.246L571.813 813.767H577.084V805.928L581.814 804.306L582.761 802.955L577.084 799.711L582.761 791.873L585.599 776.466L589.788 770.384L585.599 729.704L586.68 721.19L585.599 710.783Z"
+                fill="#6FBDD7" />
+            <path
+                d="M343.97 574.331L344.105 574.547L344.353 574.607L360.464 578.513L363.487 593.625H368.692L373.902 600.398L386.951 589.438L386.99 589.388L393.932 580.594L403.975 597.164L408.521 590.347L408.61 590.211L409.056 584.418L415.779 587.3L418.962 581.388L422.695 589.319L431.692 585.32L435.102 592.625H439.875V602.052L444.073 602.576L448.383 612.153L448.904 620.485L449.336 620.603L454.836 622.103L455.066 622.166L455.279 622.059L460.146 619.625H468.273L473.964 624.367L476.407 631.697L476.444 631.81L476.52 631.9L481.375 637.727V645.649L472.375 651.149V657.091L464.749 660.428L464.375 660.591V666.141L458.543 669.543L456.073 673.776L453.619 673.233H443.777L435.624 675.693L433.019 678.396L426.896 683.02H415.229L406.131 691.82L401.187 694.49L400.198 715.85L401.187 720.893L406.131 725.145L408.702 737.406L396.836 734.143H395.155L382.498 738.79L367.171 732.759H363.413L358.37 735.429H351.349L344.822 726.924L339.978 727.715L338.593 715.85H324.551L321.881 709.125L319.508 708.566L303.384 702.751H297.854L291.943 708.566L288.893 706.088L286.7 708.566L263.916 707.422L259.436 704.657L256.194 707.422L248.625 698.433L254.547 684.311L261.871 674.372L257.697 671.241L258.43 667.946L264.229 671.109L263.152 659.278L265.391 657.488L265.663 657.27L265.62 656.923L265.064 652.48L255.625 650.492V645.373L262.173 641.848L261.161 633.751L264.607 630.735L269.741 633.069L270.136 633.248L270.442 632.942L272.768 630.616L301.721 629.618L301.879 629.497L312.625 621.31V617.263L308.734 612.886L310.367 609.211L318.543 610.846L313.783 599.743L328.334 590.528L328.439 590.462L328.511 590.36L334.613 581.715L334.624 581.537L335.101 573.433L341.746 570.773L343.97 574.331Z"
+                fill="#6FBDD7" />
+            <path
+                d="M561.758 574.589L560.974 575.15L571.661 589.534L578.526 590.018L581.313 597.711L575.627 605.292V620.01L587.445 633.946H599.71L606.623 643.98L599.71 652.677L602.608 658.81L586.107 667.06L584.547 674.195L579.639 670.242L572.595 679.312L565.743 677.286L567.19 681.483L560.967 686.887L567.77 687.659V691.133L563.766 693.738L560.967 690.892L559.52 691.615L557.107 692.29L553.199 694.124L552.187 698.128L547.603 693.448L544.178 694.896L540.752 698.515L535.204 695.281H531.247L528.256 699.238H521.405L521.84 693.448L521.164 692.001L519.427 694.124L510.02 690.409L506.159 692.001L500.756 689.975L502.831 688.383L503.361 686.453L500.756 683.992H490.142L484.449 677.961L480.589 681.821H471.856L467.659 676.707L460.374 674.729L457.354 674.06L459.456 670.456L465.625 666.859V661.408L473.251 658.072L473.625 657.909V651.851L482.625 646.351V637.273L482.48 637.1L477.555 631.188L475.125 623.899V617.763L484.377 619.613L485.046 619.746L485.597 614.787L487.591 612.794L490.654 614.708L487.218 620.602L487.558 620.942L489.058 622.442L489.241 622.625H495.297L500.904 626.703L504.8 625.242L513.704 636.125H518.787L518.975 635.907L522.125 632.231V627.349L522.056 627.213L514.312 612.21L518.347 609.521L518.552 609.383L518.608 609.144L520.502 601.095L528.039 600.624L528.344 600.604L528.517 600.353L535.709 589.803L539.221 591.559L539.562 591.73L549.371 584.503L549.675 584.278L549.618 583.905L547.754 571.788L561.758 574.589Z"
+                fill="#6FBDD7" />
+            <path
+                d="M267.246 443.571L267.405 443.642L271.237 443.162L274.017 446.496L277.522 441.987L280.328 445.26L280.754 445.071L285.095 443.142L288.544 443.572L291.913 452.716L292.064 453.125H303.259L303.442 452.942L305.104 451.279L307.875 452.863V461.232L308.027 461.408L317.5 472.376L327.982 487.851L328.169 488.125H333.354L339.221 491.059L339.353 491.125H347.208L353.162 486.659L372.125 489.734V488.127L374.875 489.846V496.868L375.196 497.046L383.969 501.919L388.281 517.253L378.544 524.428L380.924 526.809L382.861 536.5L381.342 544.103L381.454 544.304L386.225 552.891L383.613 555.501L378.457 547.252L374.013 555.583L365.972 561.615L360.594 577.258L344.895 573.452L342.253 569.226L333.899 572.567L333.386 581.285L327.561 589.538L312.216 599.257L316.457 609.153L310.123 607.887L309.632 607.789L307.429 612.746L307.266 613.114L311.375 617.736V620.69L301.279 628.382L272.479 629.375L272.232 629.384L272.058 629.558L269.863 631.751L264.759 629.431L264.392 629.265L259.839 633.248L260.826 641.152L254.704 644.449L254.375 644.627V651.507L263.935 653.52L264.336 656.729L261.847 658.722L261.878 659.057L262.771 668.891L257.57 666.054L256.39 671.364L256.303 671.758L260.129 674.628L253.497 683.629L253.452 683.689L253.424 683.758L247.343 698.257L234.554 697.126V694.361L229.979 689.404H217.776L215.202 683.971L209.196 680.253H204.716L201.855 682.255H198.138L196.136 679.585L200.14 671.577L186.03 657.659L193.943 656.896L198.138 651.272L210.34 623.054L211.389 607.229L212.403 594.342L215.935 590.323H226.075V584.891L220.462 580.998L216.749 584.891L222.906 549.672L224.264 537.087L228.157 535.639L243.277 563.434L248.438 567.326L244.544 556.915L243.91 548.223L237.754 534.823L229.153 526.856L223.721 523.234V520.156L229.605 518.708L230.602 514L229.605 510.288V507.572L232.594 509.474L233.408 505.128L229.605 496.617L227.886 495.35L230.602 492.995V490.003L242.352 489.1L244.335 486.125H254.728L250.104 455.815L250.064 455.732L246.171 447.515L251.596 449.184L263.057 441.709L267.246 443.571Z"
+                fill="#489BB6" />
+            <path
+                d="M423.375 475.354V480.847L431.125 478.462V473.165L438.109 473.602L443.534 483.958L443.701 484.049L448.916 486.894L450.937 504.062L463.926 505.62L464.248 505.659L468.799 500.602L479.609 499.661L481.594 504.125H487.513L491.018 486.601L500.636 486.143L503.949 492.296L504.127 492.625H508.592L512.295 501.09L517.114 496.27L524.206 500.052L524.491 500.203L524.779 500.059L537.579 493.658L537.802 495.598L539.814 501.552L532.807 512.429L546.607 508.259L548.628 499.962L550.348 497.726H551.594L553.571 499.23H554.604L558.172 497.284L560.45 498.586L563.761 496.006L568.929 497.284L566.84 513.034L576.562 519.222L578.411 526.855L568.929 535.936L580.741 549.998L581.866 560.204L563.151 573.592L546.246 570.212L548.324 583.721L539.437 590.27L535.291 588.197L527.655 599.395L519.498 599.905L517.447 608.616L512.688 611.79L512.944 612.287L520.875 627.652V631.768L518.212 634.875H514.296L505.2 623.758L501.096 625.296L495.703 621.375H489.76L488.782 620.397L492.346 614.291L487.409 611.206L484.558 614.058L484.403 614.213L483.954 618.253L473.875 616.237V622.665L468.9 618.52L468.727 618.375H459.853L459.721 618.441L454.934 620.834L450.096 619.515L449.624 611.961L449.616 611.848L449.57 611.743L445.07 601.743L444.926 601.424L441.125 600.948V591.375H435.898L432.307 583.68L423.305 587.68L419.037 578.612L415.22 585.7L407.943 582.582L407.389 589.788L404.024 594.835L394.067 578.405L386.049 588.562L374.097 598.602L369.308 592.375H364.513L361.646 578.041L367.027 562.385L374.875 556.5L374.986 556.417L375.052 556.294L378.542 549.748L383.387 557.497L387.442 553.442L387.775 553.108L387.546 552.696L382.658 543.898L384.113 536.623L384.138 536.5L384.113 536.377L382.076 526.191L380.456 524.571L389.719 517.747L385.102 501.331L385.031 501.08L384.804 500.954L376.125 496.132V489.844L391.125 480.344V473.038L413.87 469.65L423.375 475.354Z"
+                fill="#6FBDD7" />
+            <path
+                d="M423.908 374.617L426.635 375.072L431.875 382.693V387.125H436.701L447.297 400.243L455.373 397.215L458.769 400.125H470.979L471.783 397.125H478.199L486.199 407.125H490.633L492.76 410.954L488.544 416.752L500.241 422.069L500.395 422.139L500.562 422.122L510.562 421.122L510.92 421.086L511.069 420.759L513.351 415.739L520.688 417.696L520.942 417.442L523.942 414.442L524.384 414L523.942 413.558L520.521 410.137L530.311 404.543L530.625 404.362V400.61L550.836 400.129L576.017 414.94L583.828 431.483L574.961 433.648L577.32 444.942L571.888 453.521L557.806 461.669L539.814 486.688L537.362 491.763L537.428 492.337L524.51 498.796L516.886 494.73L516.558 495.058L512.705 498.909L509.572 491.749L509.409 491.375H504.874L501.551 485.204L501.363 484.857L490.471 485.376L489.982 485.398L486.487 502.875H482.406L480.571 498.746L480.39 498.339L479.946 498.377L468.2 499.398L463.751 504.341L452.063 502.938L450.121 486.427L450.083 486.106L444.466 483.042L438.891 472.398L438.539 472.376L429.875 471.835V477.538L424.625 479.153V474.646L414.6 468.631L412.623 440.955L412.613 440.812L403.23 424.517L407.525 417.838L407.74 417.505L402.757 409.531L411.625 397.708V387.266L411.471 387.089L408.213 383.365L411.917 373.179L423.908 374.617Z"
+                fill="white" />
+            <path
+                d="M348.631 335.625L353.788 345.002L350.253 351.569L361.116 365.02L365.875 366.923V375.625H373.868L374.046 375.304L375.971 371.838L377.638 375.172L378.073 375.121L385.875 374.203V385.625H392.656L397.125 392.646V381.782L407.163 384.063L410.375 387.734V397.291L401.243 409.468L406.26 417.495L401.769 424.482L411.387 441.188L413.335 468.467L389.875 471.961V479.655L375.497 488.761L370.875 485.872V488.265L353.1 485.383L352.838 485.341L352.625 485.5L346.792 489.875H339.646L333.779 486.941L333.647 486.875H328.832L318.497 471.619L318.473 471.592L309.125 460.768V452.138L308.811 451.957L305.311 449.957L304.896 449.721L304.558 450.058L302.74 451.875H292.937L289.455 442.427L289.077 442.38L285.502 441.933L283.655 434.546L289.02 421.381L298.125 413.793V411.229L304.128 412.152L312.021 407.416L320.094 382.694L320.226 382.293L317.227 379.778L320.032 371.378L326.724 366.231L322.854 353.514L319.891 355.487L317.791 347.087L327.529 346.624L327.576 346.622L327.623 346.613L337.623 344.613L337.863 344.564L338.007 344.366L344.32 335.625H348.631Z"
+                fill="white" />
+            <path
+                d="M258.232 358.186L279.642 354.201L284.681 364.783L285.216 364.587L294.612 361.125H301.024L303.397 369.667L303.45 369.854L303.599 369.979L318.774 382.707L310.979 406.583L303.872 410.847L296.875 409.771V413.206L288.1 420.52L287.98 420.62L287.921 420.765L282.421 434.265L282.344 434.453L282.394 434.651L284.266 442.142L280.671 443.739L277.477 440.013L273.983 444.503L271.98 442.1L271.762 441.838L267.595 442.357L262.943 440.291L251.403 447.815L243.828 445.485L248.895 456.182L253.272 484.875H243.665L241.647 487.899L230.602 488.749V488.74L227.886 488.287L216.388 481.859V477.967L200.543 475.521L196.65 456.78L194.84 454.518L191.852 452.072L194.84 450.624L196.65 445.554V438.312L195.383 437.134L190.041 433.965L194.115 426.903L195.383 420.837L185.333 424.368H181.621L177.275 425.273L178.943 421.471L178.09 419.026V417.125L181.621 419.026L182.255 413.866L181.269 411.625H189.713L189.881 411.495L196.27 406.58L212.495 403.031L214.925 394.771L221.734 396.717L225.186 392.278L234.853 396.858L237.046 390.823L244.247 382.596L244.059 382.221L240.171 374.445L245.981 355.56L255.224 354.173L258.232 358.186Z"
+                fill="#489BB6" />
+            <path
+                d="M484.333 275.361L491.294 290.935L500.614 291.878C501.275 293.294 509.699 301.907 513.828 306.036H516.778L530.228 303.676L536.717 309.812L551.582 310.637L561.021 323.379C572.74 326.053 596.979 331.519 600.189 331.991C603.398 332.463 614.36 333.329 619.439 333.703L626.097 343.792L609.039 361.89L609.975 371.667L603.162 390.961V394.497L605.45 402.662L599.418 408.435L600.718 414.623L601.55 421.488L595.31 433.294H589.381L585.413 431.911L577.065 414.233L576.982 414.059L551.316 398.961L551.163 398.871L550.985 398.875L529.375 399.39V403.637L518.479 409.863L522.615 414L520.312 416.303L513.161 414.396L512.65 414.26L512.431 414.741L510.079 419.913L500.605 420.86L490.456 416.247L494.24 411.045L494.046 410.696L491.546 406.196L491.368 405.875H486.801L478.801 395.875H470.824L470.021 398.875H459.231L455.907 396.025L455.626 395.785L447.702 398.756L437.299 385.875H433.125V382.306L433.015 382.146L427.364 373.927L427.103 373.884L424.792 373.498L428.648 360.004L425.749 349.373L430.464 347.487L430.568 347.261L436.2 334.973L436.046 334.696L433.745 330.555L438.495 324.381L438.769 324.026L438.521 323.653L436.689 320.906L439.434 312.674L453.645 314.197L453.135 295.348L457.821 292.536L458.125 292.354V287.214L463.319 280.535L463.805 280.906L481.03 267.692H487.047L484.333 275.361Z"
+                fill="white" />
+            <path
+                d="M165.545 330.745L174.054 341.511V346.286H184.82L189.248 343.855L195.934 341.511L199.928 346.286H205.051L212.17 343.247L215.296 342.466L215.816 347.763L221.808 348.718L224.847 351.322L225.091 351.214L230.027 356.909L230.319 357.245L240.472 353.184L244.746 355.321L238.902 374.316L238.829 374.556L238.941 374.779L242.753 382.403L236.029 390.089L235.952 390.177L235.913 390.286L234.146 395.142L224.814 390.721L221.266 395.283L214.075 393.229L211.504 401.968L195.866 405.39L195.729 405.419L195.619 405.505L189.288 410.375H180.672L178.943 407.333L176.698 408.649L172.207 401.448L161.754 400.054V401.448H155.714L153.855 398.97V395.563H149.364L148.745 390.53H143.789L141.389 385.807L139.144 387.82C139.065 388.104 138.042 388.61 134.575 388.362C131.106 388.115 127.297 384.955 125.825 383.406L125.128 377.676L121.024 382.245L118.159 374.347L115.682 379.303L112.507 384.025L106.312 383.406L108.093 376.438L104.299 370.242L96.168 365.597L102.208 363.273L112.507 364.59L114.055 360.719L101.201 355.763L102.208 353.518H104.763L114.055 357.312L116.378 354.523L113.203 349.491L109.332 347.555H98.3359L94 349.491L98.3359 337.257H104.763L107.373 332.221H114.055L115.621 335.78L124.13 330.745L127.776 330.224V333.696L135.07 338.125L135.765 334.305L143.665 334.738L149.049 329.095L165.545 330.745Z"
+                fill="#489BB6" />
+            <path
+                d="M360.165 320.625H378.327L393.597 329.787L393.942 329.442L396.179 327.205L409.322 331.1L409.703 331.212L413.232 327.24L415.403 334.187L415.426 334.258L424.42 349.249L427.351 359.995L423.545 373.316L411.574 371.88L411.082 371.82L407.101 382.768L395.875 380.217V388.353L393.527 384.664L393.343 384.375H387.125V372.797L378.361 373.827L376.029 369.161L373.133 374.375H367.125V366.077L361.884 363.98L351.747 351.431L355.212 344.997L349.574 334.747L347.255 327.789L350.311 326.043L350.383 326.001L350.442 325.942L358.402 317.981L360.165 320.625Z"
+                fill="#489BB6" />
+            <path
+                d="M352.558 272.942L352.713 273.097L352.931 273.121L357.111 273.585L363.789 285.509L358.947 294.709L358.758 295.067L359.009 295.386L364.246 302.051L360.96 307.686L360.859 307.857L360.878 308.057L361.351 313.264L349.616 324.998L346.189 326.957L345.745 327.212L348.133 334.375H343.681L343.493 334.634L337.137 343.435L327.418 345.378L316.209 345.912L319.108 357.512L319.847 357.021L322.146 355.486L325.276 365.768L319.119 370.505L318.968 370.621L318.907 370.802L316.197 378.915L304.551 369.146L302.103 360.333L301.975 359.875H294.389L294.284 359.913L285.318 363.216L280.564 353.231L280.357 352.798L258.767 356.814L255.776 352.826L245.602 354.353L240.779 351.941L240.528 351.815L230.681 355.754L226.288 350.686L234.484 347.067V341.511H230.056L226.901 338.385L228.438 329.99V325.925L226.901 321.959L227.149 319.232L228.983 313.928L225.91 308.523L225.414 304.111L222.984 302.496L219.515 295.584L220.01 286.759L216.837 282.693L217.581 281.752L222.539 283.338L228.389 288.444H231.512L236.023 286.064H241.526L243.063 289.833L240.733 294.543L243.063 299.699L240.733 304.111L244.65 305.251L246.014 307.451L250.733 302.496L276.453 311.698V317.126L285.537 312.643L288.841 306.626C297.901 305.965 309.526 303.597 314.206 302.496L305.948 297.069L296.981 298.721L295.33 297.069L299.341 288.811L320.342 278.311L329.308 279.962L338.864 275.597C342.472 273.698 345.674 271.082 348.206 268.591L352.558 272.942Z"
+                fill="white" />
+            <path
+                d="M399.624 226.281L408.236 233.832H410.006L418.265 228.169L426.405 233.832V244.922L436.552 246.928L438.911 257.546L455.782 254.95L460.737 260.495L455.782 274.771L462.326 279.775L457.007 286.616L456.875 286.785V291.646L451.865 294.652L452.355 312.803L438.566 311.325L435.311 321.093L437.231 323.975L432.505 330.119L432.254 330.444L432.454 330.804L434.8 335.026L429.535 346.513L425.262 348.222L416.574 333.742L413.767 324.759L409.297 329.787L395.821 325.795L395.558 326.058L393.402 328.212L378.673 319.375H360.835L359.305 317.079L362.649 313.735L362.622 313.443L362.14 308.143L365.754 301.948L360.241 294.933L365.053 285.791L365.211 285.491L358.045 272.694L357.889 272.414L357.569 272.379L353.287 271.902L349.087 267.702C351.142 265.576 352.67 263.619 353.494 262.383L360.454 264.507L362.46 262.383L355.854 255.54L357.741 252.237C357.93 251.293 358.685 236.585 359.039 229.349L358.449 221.916L376.972 215.545L388.651 211.888L396.438 210L399.624 226.281Z"
+                fill="white" />
+
+            <circle class="event" cx="372" cy="424" r="3" fill="#D9D9D9" data-ville="LamotteBeuvron4"
+                data-region="Nord" />
+            <circle class="music" cx="483" cy="539" r="3" fill="#D9D9D9" data-ville="Lyon3" data-region="Sud" />
+            <circle class="music" cx="492" cy="533" r="3" fill="#D9D9D9" data-ville="VaulxenVelin2" data-region="Sud" />
+            <circle class="music" cx="558" cy="500" r="3" fill="#D9D9D9" data-ville="ThononlesBains"
+                data-region="Sud" />
+            <circle class="music" cx="453" cy="535" r="3" fill="#D9D9D9" data-ville="Trelins" data-region="Sud" />
+            <circle class="music" cx="524" cy="516" r="3" fill="#D9D9D9" data-ville="Nantua" data-region="Sud" />
+            <circle class="event" cx="495" cy="474" r="3" fill="#D9D9D9" data-ville="ChalonsurSaone"
+                data-region="Nord" />
+            <circle class="event" cx="382" cy="582" r="3" fill="#D9D9D9" data-ville="Aurillac" data-region="Sud" />
+            <circle class="event" cx="487" cy="535" r="3" fill="#D9D9D9" data-ville="Lyon2" data-region="Sud" />
+            <circle class="music" cx="493" cy="538" r="3" fill="#D9D9D9" data-ville="VaulxenVelin1" data-region="Sud" />
+            <circle class="music" cx="488" cy="540" r="3" fill="#D9D9D9" data-ville="Lyon1" data-region="Sud" />
+            <circle class="music" cx="490" cy="555" r="3" fill="#D9D9D9" data-ville="Vienne" data-region="Sud" />
+            <circle class="event" cx="523" cy="697" r="3" fill="#D9D9D9" data-ville="SixFourslesplages"
+                data-region="Sud" />
+            <circle class="music" cx="574" cy="680" r="3" fill="#D9D9D9" data-ville="Cannes4" data-region="Sud" />
+            <circle class="event" cx="412" cy="685" r="3" fill="#D9D9D9" data-ville="CapdAgde" data-region="Sud" />
+            <circle class="event" cx="504" cy="686" r="3" fill="#D9D9D9" data-ville="Marseille" data-region="Sud" />
+            <circle class="event" cx="564" cy="689" r="3" fill="#D9D9D9" data-ville="Sainttropez" data-region="Sud" />
+
+            <circle class="event" cx="595" cy="660" r="3" fill="#D9D9D9" data-ville="Monaco3" data-region="Sud" />
+            <circle class="event" cx="517" cy="688" r="3" fill="#D9D9D9" data-ville="LeCastellet2" data-region="Sud" />
+            <circle class="event" cx="459" cy="655" r="3" fill="#D9D9D9" data-ville="Nimes2" data-region="Sud" />
+            <circle class="event" cx="448" cy="638" r="3" fill="#D9D9D9" data-ville="Ales" data-region="Sud" />
+            <circle class="event" cx="400" cy="678" r="3" fill="#D9D9D9" data-ville="Beziers" data-region="Sud" />
+            <circle class="music" cx="498" cy="667" r="3" fill="#D9D9D9" data-ville="LaRoqueDAntheron"
+                data-region="Sud" />
+            <circle class="music" cx="404" cy="635" r="3" fill="#D9D9D9" data-ville="Millau" data-region="Sud" />
+            <circle class="music" cx="582" cy="665" r="3" fill="#D9D9D9" data-ville="Nice3" data-region="Sud" />
+            <circle class="event" cx="485" cy="647" r="3" fill="#D9D9D9" data-ville="Avignon" data-region="Sud" />
+            <circle class="event" cx="367" cy="688" r="3" fill="#D9D9D9" data-ville="Carcassonne" data-region="Sud" />
+            <circle class="event" cx="583" cy="671" r="3" fill="#D9D9D9" data-ville="Nice2" data-region="Sud" />
+            <circle class="event" cx="481" cy="631" r="3" fill="#D9D9D9" data-ville="Orange" data-region="Sud" />
+            <circle class="event" cx="522" cy="687" r="3" fill="#D9D9D9" data-ville="LeCastellet1" data-region="Sud" />
+            <circle class="event" cx="463" cy="651" r="3" fill="#D9D9D9" data-ville="Nimes1" data-region="Sud" />
+            <circle class="event" cx="404" cy="692" r="3" fill="#D9D9D9" data-ville="Gruissan" data-region="Sud" />
+            <circle class="event" cx="594" cy="665" r="3" fill="#D9D9D9" data-ville="Monaco2" data-region="Sud" />
+            <circle class="event" cx="570" cy="682" r="3" fill="#D9D9D9" data-ville="Cannes3" data-region="Sud" />
+            <circle class="music" cx="510" cy="676" r="3" fill="#D9D9D9" data-ville="Aixenprovence" data-region="Sud" />
+            <circle class="event" cx="472" cy="677" r="3" fill="#D9D9D9" data-ville="Arles" data-region="Sud" />
+            <circle class="event" cx="590" cy="661" r="3" fill="#D9D9D9" data-ville="Monaco1" data-region="Sud" />
+            <circle class="event" cx="252" cy="571" r="3" fill="#D9D9D9" data-ville="Begles2" data-region="Ouest" />
+            <circle class="music" cx="283" cy="643" r="3" fill="#D9D9D9" data-ville="VicFezensac2" data-region="Sud" />
+            <circle class="event" cx="228" cy="559" r="3" fill="#D9D9D9" data-ville="Carcans" data-region="Ouest" />
+            <circle class="event" cx="240" cy="571" r="3" fill="#D9D9D9" data-ville="Bordeaux4" data-region="Ouest" />
+            <circle class="event" cx="202" cy="664" r="3" fill="#D9D9D9" data-ville="SaintPeesurNivelle"
+                data-region="Ouest" />
+            <circle class="event" cx="335" cy="660" r="3" fill="#D9D9D9" data-ville="Toulouse2" data-region="Sud" />
+            <circle class="event" cx="284" cy="534" r="3" fill="#D9D9D9" data-ville="Angouleme" data-region="Ouest" />
+            <circle class="music" cx="249" cy="575" r="3" fill="#D9D9D9" data-ville="Begles1" data-region="Ouest" />
+
+            <circle class="event" cx="233" cy="492" r="3" fill="#D9D9D9" data-ville="LaRochelle2" data-region="Ouest" />
+            <circle class="music" cx="243" cy="567" r="3" fill="#D9D9D9" data-ville="Bordeaux3" data-region="Ouest" />
+            <circle class="music" cx="215" cy="638" r="3" fill="#D9D9D9" data-ville="Dax2" data-region="Ouest" />
+            <circle class="music" cx="248" cy="567" r="3" fill="#D9D9D9" data-ville="Bordeaux2" data-region="Ouest" />
+            <circle class="music" cx="326" cy="654" r="3" fill="#D9D9D9" data-ville="Meett" data-region="Sud" />
+            <circle class="event" cx="218" cy="641" r="3" fill="#D9D9D9" data-ville="Dax1" data-region="Ouest" />
+            <circle class="music" cx="235" cy="550" r="3" fill="#D9D9D9" data-ville="Vertheuil" data-region="Ouest" />
+            <circle class="music" cx="245" cy="613" r="3" fill="#D9D9D9" data-ville="Luxey" data-region="Ouest" />
+            <circle class="music" cx="376" cy="457" r="3" fill="#D9D9D9" data-ville="Civray" data-region="Nord" />
+            <circle class="music" cx="279" cy="647" r="3" fill="#D9D9D9" data-ville="VicFezensac1" data-region="Sud" />
+            <circle class="event" cx="207" cy="643" r="3" fill="#D9D9D9" data-ville="SaintVincentdeTyrosse"
+                data-region="Ouest" />
+            <circle class="music" cx="233" cy="528" r="3" fill="#D9D9D9" data-ville="Royan" data-region="Ouest" />
+            <circle class="music" cx="337" cy="565" r="3" fill="#D9D9D9" data-ville="BrivelaGaillarde"
+                data-region="Ouest" />
+            <circle class="event" cx="524" cy="355" r="3" fill="#D9D9D9" data-ville="Commercy" data-region="Nord" />
+            <circle class="music" cx="484" cy="521" r="3" fill="#D9D9D9" data-ville="SaintBernard" data-region="Sud" />
+            <circle class="music" cx="230" cy="495" r="3" fill="#D9D9D9" data-ville="LaRochelle1" data-region="Ouest" />
+            <circle class="event" cx="256" cy="575" r="3" fill="#D9D9D9" data-ville="SaintLoubes" data-region="Ouest" />
+            <circle class="event" cx="221" cy="562" r="3" fill="#D9D9D9" data-ville="Lacanau" data-region="Ouest" />
+            <circle class="event" cx="309" cy="559" r="3" fill="#D9D9D9" data-ville="Perigueux" data-region="Ouest" />
+            <circle class="music" cx="256" cy="548" r="3" fill="#D9D9D9" data-ville="Montendre" data-region="Ouest" />
+            <circle class="event" cx="245" cy="572" r="3" fill="#D9D9D9" data-ville="Bordeaux1" data-region="Ouest" />
+            <circle class="music" cx="246" cy="580" r="3" fill="#D9D9D9" data-ville="Talence" data-region="Ouest" />
+            <circle class="event" cx="330" cy="658" r="3" fill="#D9D9D9" data-ville="Toulouse1" data-region="Sud" />
+            <circle class="music" cx="276" cy="597" r="3" fill="#D9D9D9" data-ville="Marmande" data-region="Ouest" />
+            <circle class="event" cx="196" cy="652" r="3" fill="#D9D9D9" data-ville="Bayonne2" data-region="Ouest" />
+            <circle class="event" cx="199" cy="649" r="3" fill="#D9D9D9" data-ville="Bayonne1" data-region="Ouest" />
+
+            <circle class="event" cx="220" cy="374" r="3" fill="#D9D9D9" data-ville="Rennes" data-region="Ouest" />
+            <circle class="event" cx="295" cy="307" r="3" fill="#D9D9D9" data-ville="Deauville" data-region="Nord" />
+            <circle class="event" cx="252" cy="366" r="3" fill="#D9D9D9" data-ville="Ernee" data-region="Ouest" />
+            <circle class="music" cx="259" cy="383" r="3" fill="#D9D9D9" data-ville="Laval" data-region="Ouest" />
+            <circle class="music" cx="390" cy="455" r="3" fill="#D9D9D9" data-ville="Bourges" data-region="Nord" />
+            <circle class="event" cx="298" cy="380" r="3" fill="#D9D9D9" data-ville="LeMans6" data-region="Ouest" />
+            <circle class="event" cx="231" cy="316" r="3" fill="#D9D9D9" data-ville="Lessay" data-region="Nord" />
+            <circle class="event" cx="303" cy="384" r="3" fill="#D9D9D9" data-ville="LeMans5" data-region="Ouest" />
+            <circle class="event" cx="363" cy="427" r="3" fill="#D9D9D9" data-ville="LamotteBeuvron3"
+                data-region="Nord" />
+            <circle class="event" cx="207" cy="392" r="3" fill="#D9D9D9" data-ville="Loheac2" data-region="Ouest" />
+            <circle class="event" cx="368" cy="427" r="3" fill="#D9D9D9" data-ville="LamotteBeuvron2"
+                data-region="Nord" />
+            <circle class="event" cx="168" cy="363" r="3" fill="#D9D9D9" data-ville="MurdeBretagne"
+                data-region="Ouest" />
+            <circle class="event" cx="294" cy="389" r="3" fill="#D9D9D9" data-ville="LeMans4" data-region="Ouest" />
+            <circle class="event" cx="366" cy="422" r="3" fill="#D9D9D9" data-ville="LamotteBeuvron1"
+                data-region="Nord" />
+            <circle class="event" cx="295" cy="384" r="3" fill="#D9D9D9" data-ville="LeMans3" data-region="Ouest" />
+            <circle class="event" cx="211" cy="389" r="3" fill="#D9D9D9" data-ville="Loheac1" data-region="Ouest" />
+            <circle class="event" cx="299" cy="392" r="3" fill="#D9D9D9" data-ville="LeMans2" data-region="Ouest" />
+            <circle class="event" cx="303" cy="389" r="3" fill="#D9D9D9" data-ville="LeMans1" data-region="Ouest" />
+
+            <circle class="music" cx="210" cy="379" r="3" fill="#D9D9D9" data-ville="BrealsousMontfort"
+                data-region="Ouest" />
+            <circle class="music" cx="145" cy="355" r="3" fill="#D9D9D9" data-ville="CarhaixPlouguer2"
+                data-region="Ouest" />
+            <circle class="music" cx="119" cy="345" r="3" fill="#D9D9D9" data-ville="Landerneau" data-region="Ouest" />
+            <circle class="music" cx="166" cy="333" r="3" fill="#D9D9D9" data-ville="Paimpol" data-region="Ouest" />
+            <circle class="music" cx="108" cy="355" r="3" fill="#D9D9D9" data-ville="Crozon" data-region="Ouest" />
+            <circle class="music" cx="418" cy="238" r="3" fill="#D9D9D9" data-ville="SaintAndreLesLille"
+                data-region="Nord" />
+            <circle class="music" cx="220" cy="417" r="3" fill="#D9D9D9" data-ville="NortsurErdre"
+                data-region="Ouest" />
+            <circle class="music" cx="332" cy="326" r="3" fill="#D9D9D9" data-ville="Evreux" data-region="Nord" />
+            <circle class="music" cx="243" cy="344" r="3" fill="#D9D9D9" data-ville="SaintLaurentdeCuves"
+                data-region="Nord" />
+            <circle class="music" cx="253" cy="399" r="3" fill="#D9D9D9" data-ville="Mayenne" data-region="Ouest" />
+            <circle class="event" cx="150" cy="390" r="3" fill="#FF0000" data-ville="Lorient" data-region="Ouest" />
+            <circle class="music" cx="150" cy="357" r="3" fill="#D9D9D9" data-ville="CarhaixPlouguer1"
+                data-region="Ouest" />
+            <circle class="music" cx="284" cy="320" r="3" fill="#D9D9D9" data-ville="HerouvilleSaintClair"
+                data-region="Nord" />
+            <circle class="music" cx="240" cy="448" r="3" fill="#D9D9D9" data-ville="SaintMaloduBois"
+                data-region="Ouest" />
+            <circle class="music" cx="319" cy="344" r="3" fill="#D9D9D9" data-ville="Chambord" data-region="Nord" />
+            <circle class="music" cx="229" cy="439" r="3" fill="#D9D9D9" data-ville="Clisson" data-region="Ouest" />
+            <circle class="event" cx="440" cy="667" r="3" fill="#FF0000" data-ville="Montpellier2" data-region="Sud" />
+            <circle class="music" cx="573" cy="675" r="3" fill="#D9D9D9" data-ville="Cannes2" data-region="Sud" />
+            <circle class="music" cx="401" cy="709" r="3" fill="#D9D9D9" data-ville="Barcares2" data-region="Sud" />
+            <circle class="event" cx="503" cy="677" r="3" fill="#FF0000" data-ville="Vitrolles" data-region="Sud" />
+
+            <circle class="music" cx="401" cy="704" r="3" fill="#D9D9D9" data-ville="Barcarès" data-region="Sud" />
+            <circle class="event" cx="587" cy="667" r="3" fill="#D9D9D9" data-ville="Nice1" data-region="Sud" />
+            <circle class="event" cx="445" cy="668" r="3" fill="#D9D9D9" data-ville="Montpellier" data-region="Sud" />
+            <circle class="event" cx="568" cy="678" r="3" fill="#D9D9D9" data-ville="Cannes1" data-region="Sud" />
+            <circle class="event" cx="401" cy="699" r="3" fill="#D9D9D9" data-ville="Leucate" data-region="Sud" />
+            <circle class="event" cx="600" cy="660" r="3" fill="#D9D9D9" data-ville="Menton" data-region="Sud" />
+            <circle class="event" cx="411" cy="533" r="3" fill="#D9D9D9" data-ville="ClermontFerrand"
+                data-region="Sud" />
+            <circle class="music" cx="499" cy="442" r="3" fill="#D9D9D9" data-ville="Dijon" data-region="Nord" />
+            <circle class="event" cx="411" cy="487" r="3" fill="#D9D9D9" data-ville="Vieure" data-region="Sud" />
+            <circle class="music" cx="523" cy="459" r="3" fill="#D9D9D9" data-ville="Fraisans" data-region="Nord" />
+            <circle class="event" cx="399" cy="548" r="3" fill="#D9D9D9" data-ville="Bagnols" data-region="Sud" />
+            <circle class="music" cx="534" cy="539" r="3" fill="#D9D9D9" data-ville="AixlesBains" data-region="Sud" />
+            <circle class="music" cx="466" cy="605" r="3" fill="#D9D9D9" data-ville="Ruoms" data-region="Sud" />
+            <circle class="music" cx="503" cy="531" r="3" fill="#D9D9D9" data-ville="SaintVulbas" data-region="Sud" />
+            <circle class="event" cx="541" cy="526" r="3" fill="#D9D9D9" data-ville="Annecy" data-region="Sud" />
+            <circle class="event" cx="531" cy="383" r="3" fill="#D9D9D9" data-ville="Poussay" data-region="Nord" />
+            <circle class="music" cx="363" cy="237" r="3" fill="#D9D9D9" data-ville="Touquet2" data-region="Nord" />
+            <circle class="event" cx="524" cy="342" r="3" fill="#D9D9D9" data-ville="Chambley" data-region="Nord" />
+            <circle class="music" cx="444" cy="266" r="3" fill="#D9D9D9" data-ville="AulnoyeAymeries"
+                data-region="Nord" />
+            <circle class="event" cx="393" cy="214" r="3" fill="#D9D9D9" data-ville="Dunkerque" data-region="Nord" />
+            <circle class="music" cx="406" cy="254" r="3" fill="#D9D9D9" data-ville="Arras" data-region="Nord" />
+            <circle class="music" cx="558" cy="420" r="3" fill="#D9D9D9" data-ville="Sermamagny" data-region="Nord" />
+            <circle class="event" cx="360" cy="246" r="3" fill="#D9D9D9" data-ville="Berck" data-region="Nord" />
+            <circle class="event" cx="361" cy="241" r="3" fill="#D9D9D9" data-ville="Touquet1" data-region="Nord" />
+            <circle class="event" cx="373" cy="337" r="3" fill="#D9D9D9" data-ville="Boulogne2" data-region="Paris" />
+            <circle class="event" cx="382" cy="334" r="3" fill="#D9D9D9" data-ville="Courneuve" data-region="Paris" />
+            <circle class="music" cx="374" cy="342" r="3" fill="#D9D9D9" data-ville="Chatou" data-region="Paris" />
+            <circle class="music" cx="381" cy="342" r="3" fill="#D9D9D9" data-ville="SaintCloud" data-region="Paris" />
+            <circle class="music" cx="386" cy="340" r="3" fill="#D9D9D9" data-ville="Paris" data-region="Paris" />
+            <circle class="music" cx="378" cy="338" r="3" fill="#D9D9D9" data-ville="Boulogne1" data-region="Paris" />
+            <circle class="event" cx="388" cy="335" r="3" fill="#D9D9D9" data-ville="Bourget" data-region="Paris" />
+            <circle class="event" cx="380" cy="348" r="3" fill="#D9D9D9" data-ville="Sceaux" data-region="Paris" />
+            <circle class="music" cx="399" cy="344" r="3" fill="#D9D9D9" data-ville="Torcy" data-region="Paris" />
+            <circle class="music" cx="390" cy="342" r="3" fill="#D9D9D9" data-ville="Vincennes" data-region="Paris" />
+        </svg>
+
+    </div>
+
+    <script>
+        const svg = document.getElementById('mapSVG');
+        let currentViewBox = [0, 25, 720, 950];
+        let currentFilter = 'all';
+        let currentRegion = 'all';
+
+        function setFilter(type) {
+            currentFilter = type;
+
+            // Activer visuellement le bon bouton
+            document.querySelectorAll('.filter-btn').forEach(btn => {
+                btn.classList.toggle('active', btn.dataset.filter === type);
+            });
+
+            applyFilters();
+        }
+
+        function applyFilters() {
+            // Fonction utilitaire : détermine si un type est visible selon le filtre actif
+            const visibleByFilter = (type) => (
+                currentFilter === 'all' ||
+                (currentFilter === 'event' && type === 'event') ||
+                (currentFilter === 'music' && type === 'music')
+            );
+
+            // Filtrage des cercles sur la carte
+            document.querySelectorAll('circle[data-ville]').forEach(circle => {
+                const type = circle.classList.contains('event') ? 'event' : 'music';
+                const region = circle.dataset.region;
+
+                const visible =
+                    visibleByFilter(type) &&
+                    (currentRegion === 'all' || region === currentRegion);
+
+                circle.classList.toggle('hidden', !visible);
+            });
+
+            // Filtrage de la liste des villes
+            document.querySelectorAll('.city-list li').forEach(item => {
+                const villeType = item.dataset.type;
+                const villeRegion = item.dataset.region;
+
+                const visible =
+                    visibleByFilter(villeType) &&
+                    (currentRegion === 'all' || villeRegion === currentRegion);
+
+                item.classList.toggle('hidden', !visible);
+            });
+        }
+
+        function animateViewBox(x, y, w, h, duration = 600) {
+            const [startX, startY, startW, startH] = currentViewBox;
+            const startTime = performance.now();
+
+            function animate(time) {
+                const t = Math.min((time - startTime) / duration, 1);
+                const ease = t < 0.5 ? 2 * t * t : -1 + (4 - 2 * t) * t;
+                const curX = startX + (x - startX) * ease;
+                const curY = startY + (y - startY) * ease;
+                const curW = startW + (w - startW) * ease;
+                const curH = startH + (h - startH) * ease;
+
+                svg.setAttribute('viewBox', `${curX} ${curY} ${curW} ${curH}`);
+
+                if (t < 1) {
+                    requestAnimationFrame(animate);
+                } else {
+                    console.log(y)
+                    currentViewBox = [x, y, w, h];
+                    applyFilters();
+                }
+            }
+
+            requestAnimationFrame(animate);
+        }
+
+        function zoomTo(region, btn) {
+            let x = 0, y = 0, zoomHeight = 250, zoomWidth = 400;
+            currentRegion = region
+
+            switch (region) {
+                case 'Paris': x = 240; y = 200; zoomWidth = 300; zoomHeight = 270; animateViewBox(x, y, zoomWidth, zoomHeight); break;
+                case 'Ouest': x = 50; y = 260; zoomWidth = 400; zoomHeight = 510; animateViewBox(x, y, zoomWidth, zoomHeight); break;
+                case 'Nord': x = 200; y = 180; zoomWidth = 450; zoomHeight = 350; animateViewBox(x, y, zoomWidth, zoomHeight); break;
+                case 'Sud': x = 230; y = 465; zoomWidth = 400; zoomHeight = 280; animateViewBox(x, y, zoomWidth, zoomHeight); break;
+                default: currentRegion = 'all'; resetZoom();
+            }
+
+            document.querySelectorAll('.zoom-button').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+        }
+
+        function resetZoom() {
+            animateViewBox(0, 25, 720, 950);
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const circles = document.querySelectorAll('circle[data-ville]');
+            const cityItems = document.querySelectorAll('.city-list li');
+
+            circles.forEach(circle => {
+                const ville = circle.dataset.ville;
+                circle.addEventListener('mouseenter', () => {
+                    const listItem = document.querySelector(`.city-list li[data-ville="${ville}"]`);
+                    if (listItem) {
+                        listItem.classList.add('hovered');
+                        listItem.scrollIntoView({
+                            behavior: 'smooth',
+                            block: 'start',
+                            inline: 'start'
+                        });
+                    }
+                    circle.setAttribute('r', 8);
+                });
+                circle.addEventListener('mouseleave', () => {
+                    document.querySelector(`.city-list li[data-ville="${ville}"]`)?.classList.remove('hovered');
+                    circle.setAttribute('r', 3);
+                });
+            });
+
+            cityItems.forEach(item => {
+                const ville = item.dataset.ville;
+                item.addEventListener('mouseenter', () => {
+                    const circle = document.querySelector(`circle[data-ville="${ville}"]`);
+                    if (circle) circle.setAttribute('r', 8);
+                    item.classList.add('hovered');
+                });
+                item.addEventListener('mouseleave', () => {
+                    const circle = document.querySelector(`circle[data-ville="${ville}"]`);
+                    if (circle) circle.setAttribute('r', 3);
+                    item.classList.remove('hovered');
+                });
+            });
+
+            applyFilters();
+        });
+    </script>
+</body>
+
+</html>
