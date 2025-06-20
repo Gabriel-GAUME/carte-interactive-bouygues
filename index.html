@@ -1,254 +1,16 @@
 <!DOCTYPE html>
 <html lang="fr">
-
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Carte interactive</title>
     <style>
-        @font-face {
-            font-family: 'BouyguesRead';
-            src: url('fonts/BouyguesRead-Regular.woff2') format('woff2'),
-                url('fonts/BouyguesRead-Regular.woff') format('woff'),
-                url('fonts/BouyguesRead-Medium.woff2') format('woff2'),
-                url('fonts/BouyguesRead-Medium.woff') format('woff'), ;
-            font-weight: normal;
-            font-style: normal;
-            font-display: swap;
-        }
-
-        @font-face {
-            font-family: 'BouyguesSpeak';
-            src: url('fonts/BouyguesSpeak.woff2') format('woff2'),
-                url('fonts/BouyguesSpeak.woff') format('woff');
-            font-weight: normal;
-            font-style: normal;
-            font-display: swap;
-        }
-
-        body {
-            font-family: sans-serif;
-            margin: 0px;
-            background-color: white;
-            font-family: 'BouyguesRead', sans-serif;
-
-        }
-
-        .controls {
-            margin-bottom: 20px;
-        }
-
-        .controls label {
-            margin-right: 10px;
-        }
-
-        .fitlers-list {
-            margin: 8px 10px 16px 10px;
-        }
-
-        .container {
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-start;
-            flex-wrap: wrap;
-            height: 100vh;
-        }
-
-
-        .event {
-            fill: #D9642D;
-        }
-
-        .music {
-            fill: #2D455D;
-        }
-
-        .hidden {
-            display: none !important;
-        }
-
-        .list-container {
-            width: 50%;
-            height: 100vh;
-            display: flex;
-            flex-direction: column;
-        }
-
-        .city-list {
-            flex: 1;
-            list-style: none;
-            padding: 0;
-            margin: 0;
-            text-align: left;
-            overflow: auto;
-            padding-top: 24px;
-        }
-
-        .map {
-            width: 50%;
-            height: 100vh;
-            background-color: #EBF2F4;
-        }
-
-        .filters {
-            flex: 0 0 auto;
-            max-width: 700px;
-            width: 500px;
-            background-color: white;
-            margin-top: 48px;
-            margin-right: 114px;
-            margin-left: auto;
-        }
-
-        .filter-title {
-            margin-left: 10px;
-            margin-right: 10px;
-            color: #2D455D;
-            font-size: 14px;
-        }
-
-        .filter-button {
-            background-color: #F1F1F1;
-            color: #838487;
-            border-radius: 100px;
-            padding: 8px 16px;
-            border: none;
-            font-size: 16px;
-            transition: background-color 0.3s ease;
-            margin-right: 2px;
-            margin-bottom: 8px;
-        }
-
-        .filter-button:hover {
-            background-color: #59B6D3;
-            color: white;
-        }
-
-        .active {
-            background-color: #59B6D3;
-            color: white;
-        }
-
-        .scrollable-list {
-            overflow-y: auto;
-            flex: 1 1 auto;
-            background: #fff;
-            max-width: 700px;
-            width: 500px;
-            margin-right: 114px;
-            margin-left: auto;
-        }
-
-        .city-list li.hovered {
-            border: 1px solid #6FBDD7;
-        }
-
-        .element {
-            display: flex;
-            flex-direction: column;
-            color: #2D455D;
-            margin-bottom: 12px;
-            gap: 4px;
-            background-color: white;
-            filter: drop-shadow(rgba(0, 0, 0, 0.1) 0 1px 4px);
-            margin-left: 10px;
-            margin-right: 10px;
-            border: 1px solid white;
-            transition: all 0.3s ease;
-            padding: 16px;
-            border-radius: 8px;
-        }
-
-        .element-title {
-            font-weight: 800;
-            font-size: 18px;
-            font-family: 'BouyguesSpeak', sans-serif;
-        }
-
-        .divider {
-            width: calc(100% - 20px);
-            height: 1px;
-            background-color: #F1F1F1;
-            display: block;
-            margin: 0 10px 0 10px;
-        }
-
-        .point {
-            height: 8px;
-            width: 8px;
-            border-radius: 100px;
-            margin-right: 10px;
-            display: inline-block;
-            margin-bottom: 1px;
-        }
-
-        .point-blue {
-            background-color: #2D455D;
-        }
-
-        .point-orange {
-            background-color: #D9642D;
-        }
-
-
-        @media (max-width: 1024px) {
-            .map {
-                display: none;
-            }
-
-            .list-container {
-                margin: auto;
-                width: 100%;
-            }
-
-            .filters {
-                margin-top: 24px;
-                margin-right: auto;
-                max-width: 100%;
-            }
-
-            .scrollable-list {
-                margin-right: auto;
-                max-width: 100%;
-            }
-
-            .container {
-                justify-content: center;
-            }
-
-        }
+        @font-face{font-family:'BouyguesRead';src:url('fonts/BouyguesRead-Regular.woff2') format('woff2'),url('fonts/BouyguesRead-Regular.woff') format('woff'),url('fonts/BouyguesRead-Medium.woff2') format('woff2'),url('fonts/BouyguesRead-Medium.woff') format('woff');font-weight:normal;font-style:normal;font-display:swap}@font-face{font-family:'BouyguesSpeak';src:url('fonts/BouyguesSpeak.woff2') format('woff2'),url('fonts/BouyguesSpeak.woff') format('woff');font-weight:normal;font-style:normal;font-display:swap}body{margin:0;background:#fff;font-family:'BouyguesRead',sans-serif}.controls{margin-bottom:20px}.controls label{margin-right:10px}.fitlers-list{margin:8px 10px 16px}.container{display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;height:100vh}.event{fill:#D9642D}.music{fill:#2D455D}.hidden{display:none!important}.list-container{width:50%;height:100vh;display:flex;flex-direction:column}.city-list{flex:1;list-style:none;padding:24px 0 0;margin:0;text-align:left;overflow:auto}.map{width:50%;height:100vh;background:#EBF2F4}.filters{flex:0 0 auto;max-width:700px;width:500px;background:#fff;margin:48px 114px 0 auto}.filter-title{margin:0 10px;color:#2D455D;font-size:14px}.filter-button{background:#F1F1F1;color:#838487;border-radius:100px;padding:8px 16px;border:none;font-size:16px;transition:background-color .3s ease;margin:0 8px 8px 0}.filter-button:hover,.active{background:#59B6D3;color:#fff}.scrollable-list{overflow-y:auto;flex:1 1 auto;background:#fff;max-width:700px;width:500px;margin:0 114px 0 auto}.city-list li.hovered{border:1px solid #6FBDD7}.element{display:flex;flex-direction:column;color:#2D455D;margin:0 10px 12px;gap:4px;background:#fff;filter:drop-shadow(0 1px 4px rgba(0,0,0,.1));border:1px solid #fff;transition:.3s ease;padding:16px;border-radius:8px}.element-title{font-weight:800;font-size:18px;font-family:'BouyguesSpeak',sans-serif}.divider{width:calc(100% - 20px);height:1px;background:#F1F1F1;display:block;margin:0 10px}.point{height:8px;width:8px;border-radius:100px;margin:0 10px 1px 0;display:inline-block}.point-blue{background:#2D455D}.point-orange{background:#D9642D}@media(max-width:1024px){.map{display:none}.list-container{margin:auto;width:100%}.filters{margin-top:24px;margin-right:auto;max-width:100%}.scrollable-list{margin-right:auto;max-width:100%}.container{justify-content:center}}
     </style>
 </head>
-
 <body>
-
     <div class="container">
-
-        <div class="list-container">
-
-            <div class="filters">
-                <span class="filter-title">Régions</span>
-                <div class="zoom-buttons fitlers-list">
-                    <button class="filter-button zoom-button active" onclick="zoomTo('reset', this)">Toute la
-                        France</button>
-                    <button class="filter-button zoom-button" onclick="zoomTo('Paris', this)">Ile de France</button>
-                    <button class="filter-button zoom-button" onclick="zoomTo('Ouest', this)">Grand-Ouest</button>
-                    <button class="filter-button zoom-button" onclick="zoomTo('Nord', this)">Nord / Nord-Est</button>
-                    <button class="filter-button zoom-button" onclick="zoomTo('Sud', this)">Sud-Est</button>
-                </div>
-                <span class="filter-title">Filtrer par</span>
-                <div class="controls fitlers-list">
-                    <button class="filter-button filter-btn active" data-filter="all"
-                        onclick="setFilter('all')">Tous</button>
-                    <button class="filter-button filter-btn" data-filter="music" onclick="setFilter('music')"><span
-                            class="point point-blue"></span>Musique et festivals</button>
-                    <button class="filter-button filter-btn" data-filter="event" onclick="setFilter('event')"><span
-                            class="point point-orange"></span>Autres événements</button>
-                </div>
-                <span class="divider"></span>
-
-            </div>
-
+        <div class="list-container"><div class="filters"><span class="filter-title">Régions</span><div class="zoom-buttons fitlers-list"><button class="filter-button zoom-button active" onclick="zoomTo('reset', this)">Toute la France</button><button class="filter-button zoom-button" onclick="zoomTo('Paris', this)">Ile de France</button><button class="filter-button zoom-button" onclick="zoomTo('Ouest', this)">Grand-Ouest</button><button class="filter-button zoom-button" onclick="zoomTo('Nord', this)">Nord / Nord-Est</button><button class="filter-button zoom-button" onclick="zoomTo('Sud', this)">Sud-Est</button></div><span class="filter-title">Filtrer par</span><div class="controls fitlers-list"><button class="filter-button filter-btn active" data-filter="all" onclick="setFilter('all')">Tous</button><button class="filter-button filter-btn" data-filter="music" onclick="setFilter('music')"><span class="point point-blue"></span>Musique et festivals</button><button class="filter-button filter-btn" data-filter="event" onclick="setFilter('event')"><span class="point point-orange"></span>Autres événements</button></div><span class="divider"></span></div>
             <div class="scrollable-list">
                 <ul class="city-list">
                     <li class="element" data-ville="Vincennes" data-type="music" data-region="Paris">
@@ -387,7 +149,6 @@
                         <span class="element-title">Les Déferlantes</span>
                         <span class="element-subtitle">Le Barcarès (66)</span>
                     </li>
-
                     <li class="element" data-ville="Vitrolles" data-type="music" data-region="Sud">
                         <span class="element-title">Jardin Sonore Festival</span>
                         <span class="element-subtitle">Vitrolles (13)</span>
@@ -468,7 +229,6 @@
                         <span class="element-title">Festival du roi Arthur</span>
                         <span class="element-subtitle">Bréal-sous-Montfort (35)</span>
                     </li>
-
                     <li class="element" data-ville="LeMans1" data-type="event" data-region="Ouest">
                         <span class="element-title">24 Heures Motos</span>
                         <span class="element-subtitle">Le Mans (72)</span>
@@ -541,7 +301,6 @@
                         <span class="element-title">SPACE Rennes</span>
                         <span class="element-subtitle">Rennes (35)</span>
                     </li>
-
                     <li class="element" data-ville="Bayonne1" data-type="event" data-region="Ouest">
                         <span class="element-title">Fêtes de Bayonne</span>
                         <span class="element-subtitle">Bayonne (64)</span>
@@ -646,7 +405,6 @@
                         <span class="element-title">Le Grand Pavois</span>
                         <span class="element-subtitle">La Rochelle (17)</span>
                     </li>
-
                     <li class="element" data-ville="Begles1" data-type="music" data-region="Ouest">
                         <span class="element-title">Green Paradize</span>
                         <span class="element-subtitle">Bégles (33)</span>
@@ -759,7 +517,6 @@
                         <span class="element-title">Monaco Yachts Show</span>
                         <span class="element-subtitle">Monaco</span>
                     </li>
-
                     <li class="element" data-ville="Sainttropez" data-type="event" data-region="Sud">
                         <span class="element-title">Les Voiles de Saint-Tropez</span>
                         <span class="element-subtitle">Saint-Tropez (06)</span>
@@ -835,7 +592,6 @@
         <svg class="map" id="mapSVG" width="720" height="1024" viewBox="0 0 720 1024" fill="none"
             xmlns="http://www.w3.org/2000/svg">
             <rect width="720" height="1024" fill="#EBF2F4" />
-
             <path
                 d="M585.599 710.783L578.571 712.135L577.084 732.272H574.246L571.813 727.407L563.704 732.272L566.002 736.462H555.596L547.081 753.896L550.865 757.545L546 761.194L549.784 764.438L554.244 773.222L548.027 774.709L549.784 779.304H554.244V788.899L561.677 794.035L556.677 799.711L561.677 805.117H569.246L571.813 813.767H577.084V805.928L581.814 804.306L582.761 802.955L577.084 799.711L582.761 791.873L585.599 776.466L589.788 770.384L585.599 729.704L586.68 721.19L585.599 710.783Z"
                 fill="#6FBDD7" />
@@ -875,7 +631,6 @@
             <path
                 d="M399.624 226.281L408.236 233.832H410.006L418.265 228.169L426.405 233.832V244.922L436.552 246.928L438.911 257.546L455.782 254.95L460.737 260.495L455.782 274.771L462.326 279.775L457.007 286.616L456.875 286.785V291.646L451.865 294.652L452.355 312.803L438.566 311.325L435.311 321.093L437.231 323.975L432.505 330.119L432.254 330.444L432.454 330.804L434.8 335.026L429.535 346.513L425.262 348.222L416.574 333.742L413.767 324.759L409.297 329.787L395.821 325.795L395.558 326.058L393.402 328.212L378.673 319.375H360.835L359.305 317.079L362.649 313.735L362.622 313.443L362.14 308.143L365.754 301.948L360.241 294.933L365.053 285.791L365.211 285.491L358.045 272.694L357.889 272.414L357.569 272.379L353.287 271.902L349.087 267.702C351.142 265.576 352.67 263.619 353.494 262.383L360.454 264.507L362.46 262.383L355.854 255.54L357.741 252.237C357.93 251.293 358.685 236.585 359.039 229.349L358.449 221.916L376.972 215.545L388.651 211.888L396.438 210L399.624 226.281Z"
                 fill="white" />
-
             <circle class="event" cx="372" cy="424" r="3" fill="#D9D9D9" data-ville="LamotteBeuvron4"
                 data-region="Nord" />
             <circle class="music" cx="483" cy="539" r="3" fill="#D9D9D9" data-ville="Lyon3" data-region="Sud" />
@@ -897,7 +652,6 @@
             <circle class="event" cx="412" cy="685" r="3" fill="#D9D9D9" data-ville="CapdAgde" data-region="Sud" />
             <circle class="event" cx="504" cy="686" r="3" fill="#D9D9D9" data-ville="Marseille" data-region="Sud" />
             <circle class="event" cx="564" cy="689" r="3" fill="#D9D9D9" data-ville="Sainttropez" data-region="Sud" />
-
             <circle class="event" cx="595" cy="660" r="3" fill="#D9D9D9" data-ville="Monaco3" data-region="Sud" />
             <circle class="event" cx="517" cy="688" r="3" fill="#D9D9D9" data-ville="LeCastellet2" data-region="Sud" />
             <circle class="event" cx="459" cy="655" r="3" fill="#D9D9D9" data-ville="Nimes2" data-region="Sud" />
@@ -928,7 +682,6 @@
             <circle class="event" cx="335" cy="660" r="3" fill="#D9D9D9" data-ville="Toulouse2" data-region="Sud" />
             <circle class="event" cx="284" cy="534" r="3" fill="#D9D9D9" data-ville="Angouleme" data-region="Ouest" />
             <circle class="music" cx="249" cy="575" r="3" fill="#D9D9D9" data-ville="Begles1" data-region="Ouest" />
-
             <circle class="event" cx="233" cy="492" r="3" fill="#D9D9D9" data-ville="LaRochelle2" data-region="Ouest" />
             <circle class="music" cx="243" cy="567" r="3" fill="#D9D9D9" data-ville="Bordeaux3" data-region="Ouest" />
             <circle class="music" cx="215" cy="638" r="3" fill="#D9D9D9" data-ville="Dax2" data-region="Ouest" />
@@ -957,7 +710,6 @@
             <circle class="music" cx="276" cy="597" r="3" fill="#D9D9D9" data-ville="Marmande" data-region="Ouest" />
             <circle class="event" cx="196" cy="652" r="3" fill="#D9D9D9" data-ville="Bayonne2" data-region="Ouest" />
             <circle class="event" cx="199" cy="649" r="3" fill="#D9D9D9" data-ville="Bayonne1" data-region="Ouest" />
-
             <circle class="event" cx="220" cy="374" r="3" fill="#D9D9D9" data-ville="Rennes" data-region="Ouest" />
             <circle class="event" cx="295" cy="307" r="3" fill="#D9D9D9" data-ville="Deauville" data-region="Nord" />
             <circle class="event" cx="252" cy="366" r="3" fill="#D9D9D9" data-ville="Ernee" data-region="Ouest" />
@@ -980,7 +732,6 @@
             <circle class="event" cx="211" cy="389" r="3" fill="#D9D9D9" data-ville="Loheac1" data-region="Ouest" />
             <circle class="event" cx="299" cy="392" r="3" fill="#D9D9D9" data-ville="LeMans2" data-region="Ouest" />
             <circle class="event" cx="303" cy="389" r="3" fill="#D9D9D9" data-ville="LeMans1" data-region="Ouest" />
-
             <circle class="music" cx="210" cy="379" r="3" fill="#D9D9D9" data-ville="BrealsousMontfort"
                 data-region="Ouest" />
             <circle class="music" cx="145" cy="355" r="3" fill="#D9D9D9" data-ville="CarhaixPlouguer2"
@@ -1009,7 +760,6 @@
             <circle class="music" cx="573" cy="675" r="3" fill="#D9D9D9" data-ville="Cannes2" data-region="Sud" />
             <circle class="music" cx="401" cy="709" r="3" fill="#D9D9D9" data-ville="Barcares2" data-region="Sud" />
             <circle class="event" cx="503" cy="677" r="3" fill="#FF0000" data-ville="Vitrolles" data-region="Sud" />
-
             <circle class="music" cx="401" cy="704" r="3" fill="#D9D9D9" data-ville="Barcarès" data-region="Sud" />
             <circle class="event" cx="587" cy="667" r="3" fill="#D9D9D9" data-ville="Nice1" data-region="Sud" />
             <circle class="event" cx="445" cy="668" r="3" fill="#D9D9D9" data-ville="Montpellier" data-region="Sud" />
@@ -1047,146 +797,9 @@
             <circle class="music" cx="399" cy="344" r="3" fill="#D9D9D9" data-ville="Torcy" data-region="Paris" />
             <circle class="music" cx="390" cy="342" r="3" fill="#D9D9D9" data-ville="Vincennes" data-region="Paris" />
         </svg>
-
     </div>
-
     <script>
-        const svg = document.getElementById('mapSVG');
-        let currentViewBox = [0, 25, 720, 950];
-        let currentFilter = 'all';
-        let currentRegion = 'all';
-
-        function setFilter(type) {
-            currentFilter = type;
-
-            // Activer visuellement le bon bouton
-            document.querySelectorAll('.filter-btn').forEach(btn => {
-                btn.classList.toggle('active', btn.dataset.filter === type);
-            });
-
-            applyFilters();
-        }
-
-        function applyFilters() {
-            // Fonction utilitaire : détermine si un type est visible selon le filtre actif
-            const visibleByFilter = (type) => (
-                currentFilter === 'all' ||
-                (currentFilter === 'event' && type === 'event') ||
-                (currentFilter === 'music' && type === 'music')
-            );
-
-            // Filtrage des cercles sur la carte
-            document.querySelectorAll('circle[data-ville]').forEach(circle => {
-                const type = circle.classList.contains('event') ? 'event' : 'music';
-                const region = circle.dataset.region;
-
-                const visible =
-                    visibleByFilter(type) &&
-                    (currentRegion === 'all' || region === currentRegion);
-
-                circle.classList.toggle('hidden', !visible);
-            });
-
-            // Filtrage de la liste des villes
-            document.querySelectorAll('.city-list li').forEach(item => {
-                const villeType = item.dataset.type;
-                const villeRegion = item.dataset.region;
-
-                const visible =
-                    visibleByFilter(villeType) &&
-                    (currentRegion === 'all' || villeRegion === currentRegion);
-
-                item.classList.toggle('hidden', !visible);
-            });
-        }
-
-        function animateViewBox(x, y, w, h, duration = 600) {
-            const [startX, startY, startW, startH] = currentViewBox;
-            const startTime = performance.now();
-
-            function animate(time) {
-                const t = Math.min((time - startTime) / duration, 1);
-                const ease = t < 0.5 ? 2 * t * t : -1 + (4 - 2 * t) * t;
-                const curX = startX + (x - startX) * ease;
-                const curY = startY + (y - startY) * ease;
-                const curW = startW + (w - startW) * ease;
-                const curH = startH + (h - startH) * ease;
-
-                svg.setAttribute('viewBox', `${curX} ${curY} ${curW} ${curH}`);
-
-                if (t < 1) {
-                    requestAnimationFrame(animate);
-                } else {
-                    console.log(y)
-                    currentViewBox = [x, y, w, h];
-                    applyFilters();
-                }
-            }
-
-            requestAnimationFrame(animate);
-        }
-
-        function zoomTo(region, btn) {
-            let x = 0, y = 0, zoomHeight = 250, zoomWidth = 400;
-            currentRegion = region
-
-            switch (region) {
-                case 'Paris': x = 240; y = 200; zoomWidth = 300; zoomHeight = 270; animateViewBox(x, y, zoomWidth, zoomHeight); break;
-                case 'Ouest': x = 50; y = 260; zoomWidth = 400; zoomHeight = 510; animateViewBox(x, y, zoomWidth, zoomHeight); break;
-                case 'Nord': x = 200; y = 180; zoomWidth = 450; zoomHeight = 350; animateViewBox(x, y, zoomWidth, zoomHeight); break;
-                case 'Sud': x = 230; y = 465; zoomWidth = 400; zoomHeight = 280; animateViewBox(x, y, zoomWidth, zoomHeight); break;
-                default: currentRegion = 'all'; resetZoom();
-            }
-
-            document.querySelectorAll('.zoom-button').forEach(b => b.classList.remove('active'));
-            btn.classList.add('active');
-        }
-
-        function resetZoom() {
-            animateViewBox(0, 25, 720, 950);
-        }
-
-        document.addEventListener('DOMContentLoaded', () => {
-            const circles = document.querySelectorAll('circle[data-ville]');
-            const cityItems = document.querySelectorAll('.city-list li');
-
-            circles.forEach(circle => {
-                const ville = circle.dataset.ville;
-                circle.addEventListener('mouseenter', () => {
-                    const listItem = document.querySelector(`.city-list li[data-ville="${ville}"]`);
-                    if (listItem) {
-                        listItem.classList.add('hovered');
-                        listItem.scrollIntoView({
-                            behavior: 'smooth',
-                            block: 'start',
-                            inline: 'start'
-                        });
-                    }
-                    circle.setAttribute('r', 8);
-                });
-                circle.addEventListener('mouseleave', () => {
-                    document.querySelector(`.city-list li[data-ville="${ville}"]`)?.classList.remove('hovered');
-                    circle.setAttribute('r', 3);
-                });
-            });
-
-            cityItems.forEach(item => {
-                const ville = item.dataset.ville;
-                item.addEventListener('mouseenter', () => {
-                    const circle = document.querySelector(`circle[data-ville="${ville}"]`);
-                    if (circle) circle.setAttribute('r', 8);
-                    item.classList.add('hovered');
-                });
-                item.addEventListener('mouseleave', () => {
-                    const circle = document.querySelector(`circle[data-ville="${ville}"]`);
-                    if (circle) circle.setAttribute('r', 3);
-                    item.classList.remove('hovered');
-                });
-            });
-
-            applyFilters();
-        });
+        const svg=document.getElementById("mapSVG"),circles=document.querySelectorAll("circle[data-ville]"),cityItems=document.querySelectorAll(".city-list li");let currentViewBox=[0,25,720,950],currentFilter="all",currentRegion="all";function setFilter(e){currentFilter=e,document.querySelectorAll(".filter-btn").forEach(t=>{t.classList.toggle("active",t.dataset.filter===e)}),applyFilters()}function applyFilters(){const e=e=>"all"===currentFilter||"event"===currentFilter&&"event"===e||"music"===currentFilter&&"music"===e;document.querySelectorAll("circle[data-ville]").forEach(t=>{const r=t.classList.contains("event")?"event":"music",i=t.dataset.region,n=e(r)&&("all"===currentRegion||i===currentRegion);t.classList.toggle("hidden",!n)}),document.querySelectorAll(".city-list li").forEach(t=>{const r=t.dataset.type,i=t.dataset.region,n=e(r)&&("all"===currentRegion||i===currentRegion);t.classList.toggle("hidden",!n)})}function animateViewBox(e,t,r,i,n=600){const[o,c,l,s]=currentViewBox,a=performance.now();function u(d){const m=Math.min((d-a)/n,1),f=m<.5?2*m*m:-1+(4-2*m)*m,v=o+(e-o)*f,y=c+(t-c)*f,b=l+(r-l)*f,g=s+(i-s)*f;svg.setAttribute("viewBox",`${v} ${y} ${b} ${g}`),m<1?requestAnimationFrame(u):(currentViewBox=[e,t,r,i],applyFilters())}requestAnimationFrame(u)}function zoomTo(e,t){let r=0,i=0,n=250,o=400;switch(currentRegion=e,e){case"Paris":r=240,i=200,o=300,n=270,animateViewBox(r,i,o,n);break;case"Ouest":r=50,i=260,o=400,n=510,animateViewBox(r,i,o,n);break;case"Nord":r=200,i=180,o=450,n=350,animateViewBox(r,i,o,n);break;case"Sud":r=230,i=465,o=400,n=280,animateViewBox(r,i,o,n);break;default:currentRegion="all",resetZoom()}document.querySelectorAll(".zoom-button").forEach(e=>e.classList.remove("active")),t.classList.add("active")}function resetZoom(){animateViewBox(0,25,720,950)}document.addEventListener("DOMContentLoaded",()=>{circles.forEach(e=>{const t=e.dataset.ville;e.addEventListener("mouseenter",()=>{const r=document.querySelector(`.city-list li[data-ville="${t}"]`);r&&(r.classList.add("hovered"),r.scrollIntoView({behavior:"smooth",block:"start",inline:"start"})),e.setAttribute("r",8)}),e.addEventListener("mouseleave",()=>{document.querySelector(`.city-list li[data-ville="${t}"]`)?.classList.remove("hovered"),e.setAttribute("r",3)})}),cityItems.forEach(e=>{const t=e.dataset.ville;e.addEventListener("mouseenter",()=>{const r=document.querySelector(`circle[data-ville="${t}"]`);r&&r.setAttribute("r",8),e.classList.add("hovered")}),e.addEventListener("mouseleave",()=>{const r=document.querySelector(`circle[data-ville="${t}"]`);r&&r.setAttribute("r",3),e.classList.remove("hovered")})}),applyFilters()});
     </script>
 </body>
-
 </html>
