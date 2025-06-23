@@ -1,16 +1,227 @@
 <!DOCTYPE html>
 <html lang="fr">
+
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Carte interactive</title>
     <style>
-        @font-face{font-family:'BouyguesRead';src:url('fonts/BouyguesRead-Regular.woff2') format('woff2'),url('fonts/BouyguesRead-Regular.woff') format('woff'),url('fonts/BouyguesRead-Medium.woff2') format('woff2'),url('fonts/BouyguesRead-Medium.woff') format('woff');font-weight:normal;font-style:normal;font-display:swap}@font-face{font-family:'BouyguesSpeak';src:url('fonts/BouyguesSpeak.woff2') format('woff2'),url('fonts/BouyguesSpeak.woff') format('woff');font-weight:normal;font-style:normal;font-display:swap}body{margin:0;background:#fff;font-family:'BouyguesRead',sans-serif}.controls{margin-bottom:20px}.controls label{margin-right:10px}.fitlers-list{margin:8px 10px 16px}.container{display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;height:100vh}.event{fill:#D9642D}.music{fill:#2D455D}.hidden{display:none!important}.list-container{width:50%;height:100vh;display:flex;flex-direction:column}.city-list{flex:1;list-style:none;padding:24px 0 0;margin:0;text-align:left;overflow:auto}.map{width:50%;height:100vh;background:#EBF2F4}.filters{flex:0 0 auto;max-width:700px;width:500px;background:#fff;margin:48px 114px 0 auto}.filter-title{margin:0 10px;color:#2D455D;font-size:14px}.filter-button{background:#F1F1F1;color:#838487;border-radius:100px;padding:8px 16px;border:none;font-size:16px;transition:background-color .3s ease;margin:0 8px 8px 0}.filter-button:hover,.active{background:#59B6D3;color:#fff}.scrollable-list{overflow-y:auto;flex:1 1 auto;background:#fff;max-width:700px;width:500px;margin:0 114px 0 auto}.city-list li.hovered{border:1px solid #6FBDD7}.element{display:flex;flex-direction:column;color:#2D455D;margin:0 10px 12px;gap:4px;background:#fff;filter:drop-shadow(0 1px 4px rgba(0,0,0,.1));border:1px solid #fff;transition:.3s ease;padding:16px;border-radius:8px}.element-title{font-weight:800;font-size:18px;font-family:'BouyguesSpeak',sans-serif}.divider{width:calc(100% - 20px);height:1px;background:#F1F1F1;display:block;margin:0 10px}.point{height:8px;width:8px;border-radius:100px;margin:0 10px 1px 0;display:inline-block}.point-blue{background:#2D455D}.point-orange{background:#D9642D}@media(max-width:1024px){.map{display:none}.list-container{margin:auto;width:100%}.filters{margin-top:24px;margin-right:auto;max-width:100%}.scrollable-list{margin-right:auto;max-width:100%}.container{justify-content:center}}
+        @font-face {
+            font-family: 'BouyguesRead';
+            src: url('fonts/BouyguesRead-Regular.woff2') format('woff2'), url('fonts/BouyguesRead-Regular.woff') format('woff'), url('fonts/BouyguesRead-Medium.woff2') format('woff2'), url('fonts/BouyguesRead-Medium.woff') format('woff');
+            font-weight: normal;
+            font-style: normal;
+            font-display: swap
+        }
+
+        @font-face {
+            font-family: 'BouyguesSpeak';
+            src: url('fonts/BouyguesSpeak.woff2') format('woff2'), url('fonts/BouyguesSpeak.woff') format('woff');
+            font-weight: normal;
+            font-style: normal;
+            font-display: swap
+        }
+
+        body {
+            margin: 0;
+            background: #fff;
+            font-family: 'BouyguesRead', sans-serif
+        }
+
+        .controls {
+            margin-bottom: 20px
+        }
+
+        .controls label {
+            margin-right: 10px
+        }
+
+        .fitlers-list {
+            margin: 8px 10px 16px
+        }
+
+        .container {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            flex-wrap: wrap;
+            height: 100vh
+        }
+
+        .event {
+            fill: #D9642D
+        }
+
+        .music {
+            fill: #2D455D
+        }
+
+        .hidden {
+            display: none !important
+        }
+
+        .list-container {
+            width: 50%;
+            height: 100vh;
+            display: flex;
+            flex-direction: column
+        }
+
+        .city-list {
+            flex: 1;
+            list-style: none;
+            padding: 24px 0 0;
+            margin: 0;
+            text-align: left;
+            overflow: auto
+        }
+
+        .map {
+            width: 50%;
+            height: 100vh;
+            background: #EBF2F4
+        }
+
+        .filters {
+            flex: 0 0 auto;
+            max-width: 700px;
+            width: 500px;
+            background: #fff;
+            margin: 48px 114px 0 auto
+        }
+
+        .filter-title {
+            margin: 0 10px;
+            color: #2D455D;
+            font-size: 14px
+        }
+
+        .filter-button {
+            background: #F1F1F1;
+            color: #838487;
+            border-radius: 100px;
+            padding: 8px 16px;
+            border: none;
+            font-size: 16px;
+            transition: background-color .3s ease;
+            margin: 0 8px 8px 0
+        }
+
+        .filter-button:hover,
+        .active {
+            background: #59B6D3;
+            color: #fff
+        }
+
+        .scrollable-list {
+            overflow-y: auto;
+            flex: 1 1 auto;
+            background: #fff;
+            max-width: 700px;
+            width: 500px;
+            margin: 0 114px 0 auto
+        }
+
+        .city-list li.hovered {
+            border: 1px solid #6FBDD7
+        }
+
+        circle.hovered {
+            stroke: rgba(255, 255, 255, 0.45);
+  stroke-width: 2px;
+
+        }
+
+        .element {
+            display: flex;
+            flex-direction: column;
+            color: #2D455D;
+            margin: 0 10px 12px;
+            gap: 4px;
+            background: #fff;
+            filter: drop-shadow(0 1px 4px rgba(0, 0, 0, .1));
+            border: 1px solid #fff;
+            transition: .3s ease;
+            padding: 16px;
+            border-radius: 8px
+        }
+
+        .element-title {
+            font-weight: 800;
+            font-size: 18px;
+            font-family: 'BouyguesSpeak', sans-serif
+        }
+
+        .divider {
+            width: calc(100% - 20px);
+            height: 1px;
+            background: #F1F1F1;
+            display: block;
+            margin: 0 10px
+        }
+
+        .point {
+            height: 8px;
+            width: 8px;
+            border-radius: 100px;
+            margin: 0 10px 1px 0;
+            display: inline-block
+        }
+
+        .point-blue {
+            background: #2D455D
+        }
+
+        .point-orange {
+            background: #D9642D
+        }
+
+        @media(max-width:1024px) {
+            .map {
+                display: none
+            }
+
+            .list-container {
+                margin: auto;
+                width: 100%
+            }
+
+            .filters {
+                margin-top: 24px;
+                margin-right: auto;
+                max-width: 100%
+            }
+
+            .scrollable-list {
+                margin-right: auto;
+                max-width: 100%
+            }
+
+            .container {
+                justify-content: center
+            }
+        }
     </style>
 </head>
+
 <body>
     <div class="container">
-        <div class="list-container"><div class="filters"><span class="filter-title">Régions</span><div class="zoom-buttons fitlers-list"><button class="filter-button zoom-button active" onclick="zoomTo('reset', this)">Toute la France</button><button class="filter-button zoom-button" onclick="zoomTo('Paris', this)">Ile de France</button><button class="filter-button zoom-button" onclick="zoomTo('Ouest', this)">Grand-Ouest</button><button class="filter-button zoom-button" onclick="zoomTo('Nord', this)">Nord / Nord-Est</button><button class="filter-button zoom-button" onclick="zoomTo('Sud', this)">Sud-Est</button></div><span class="filter-title">Filtrer par</span><div class="controls fitlers-list"><button class="filter-button filter-btn active" data-filter="all" onclick="setFilter('all')">Tous</button><button class="filter-button filter-btn" data-filter="music" onclick="setFilter('music')"><span class="point point-blue"></span>Musique et festivals</button><button class="filter-button filter-btn" data-filter="event" onclick="setFilter('event')"><span class="point point-orange"></span>Autres événements</button></div><span class="divider"></span></div>
+        <div class="list-container">
+            <div class="filters"><span class="filter-title">Régions</span>
+                <div class="zoom-buttons fitlers-list"><button class="filter-button zoom-button active"
+                        onclick="zoomTo('reset', this)">Toute la France</button><button
+                        class="filter-button zoom-button" onclick="zoomTo('Paris', this)">Ile de France</button><button
+                        class="filter-button zoom-button" onclick="zoomTo('Ouest', this)">Grand-Ouest</button><button
+                        class="filter-button zoom-button" onclick="zoomTo('Nord', this)">Nord / Nord-Est</button><button
+                        class="filter-button zoom-button" onclick="zoomTo('Sud', this)">Sud-Est</button></div><span
+                    class="filter-title">Filtrer par</span>
+                <div class="controls fitlers-list"><button class="filter-button filter-btn active" data-filter="all"
+                        onclick="setFilter('all')">Tous</button><button class="filter-button filter-btn"
+                        data-filter="music" onclick="setFilter('music')"><span class="point point-blue"></span>Musique
+                        et festivals</button><button class="filter-button filter-btn" data-filter="event"
+                        onclick="setFilter('event')"><span class="point point-orange"></span>Autres événements</button>
+                </div><span class="divider"></span>
+            </div>
             <div class="scrollable-list">
                 <ul class="city-list">
                     <li class="element" data-ville="Vincennes" data-type="music" data-region="Paris">
@@ -799,7 +1010,8 @@
         </svg>
     </div>
     <script>
-        const svg=document.getElementById("mapSVG"),circles=document.querySelectorAll("circle[data-ville]"),cityItems=document.querySelectorAll(".city-list li");let currentViewBox=[0,25,720,950],currentFilter="all",currentRegion="all";function setFilter(e){currentFilter=e,document.querySelectorAll(".filter-btn").forEach(t=>{t.classList.toggle("active",t.dataset.filter===e)}),applyFilters()}function applyFilters(){const e=e=>"all"===currentFilter||"event"===currentFilter&&"event"===e||"music"===currentFilter&&"music"===e;document.querySelectorAll("circle[data-ville]").forEach(t=>{const r=t.classList.contains("event")?"event":"music",i=t.dataset.region,n=e(r)&&("all"===currentRegion||i===currentRegion);t.classList.toggle("hidden",!n)}),document.querySelectorAll(".city-list li").forEach(t=>{const r=t.dataset.type,i=t.dataset.region,n=e(r)&&("all"===currentRegion||i===currentRegion);t.classList.toggle("hidden",!n)})}function animateViewBox(e,t,r,i,n=600){const[o,c,l,s]=currentViewBox,a=performance.now();function u(d){const m=Math.min((d-a)/n,1),f=m<.5?2*m*m:-1+(4-2*m)*m,v=o+(e-o)*f,y=c+(t-c)*f,b=l+(r-l)*f,g=s+(i-s)*f;svg.setAttribute("viewBox",`${v} ${y} ${b} ${g}`),m<1?requestAnimationFrame(u):(currentViewBox=[e,t,r,i],applyFilters())}requestAnimationFrame(u)}function zoomTo(e,t){let r=0,i=0,n=250,o=400;switch(currentRegion=e,e){case"Paris":r=240,i=200,o=300,n=270,animateViewBox(r,i,o,n);break;case"Ouest":r=50,i=260,o=400,n=510,animateViewBox(r,i,o,n);break;case"Nord":r=200,i=180,o=450,n=350,animateViewBox(r,i,o,n);break;case"Sud":r=230,i=465,o=400,n=280,animateViewBox(r,i,o,n);break;default:currentRegion="all",resetZoom()}document.querySelectorAll(".zoom-button").forEach(e=>e.classList.remove("active")),t.classList.add("active")}function resetZoom(){animateViewBox(0,25,720,950)}document.addEventListener("DOMContentLoaded",()=>{circles.forEach(e=>{const t=e.dataset.ville;e.addEventListener("mouseenter",()=>{const r=document.querySelector(`.city-list li[data-ville="${t}"]`);r&&(r.classList.add("hovered"),r.scrollIntoView({behavior:"smooth",block:"start",inline:"start"})),e.setAttribute("r",8)}),e.addEventListener("mouseleave",()=>{document.querySelector(`.city-list li[data-ville="${t}"]`)?.classList.remove("hovered"),e.setAttribute("r",3)})}),cityItems.forEach(e=>{const t=e.dataset.ville;e.addEventListener("mouseenter",()=>{const r=document.querySelector(`circle[data-ville="${t}"]`);r&&r.setAttribute("r",8),e.classList.add("hovered")}),e.addEventListener("mouseleave",()=>{const r=document.querySelector(`circle[data-ville="${t}"]`);r&&r.setAttribute("r",3),e.classList.remove("hovered")})}),applyFilters()});
+        const svg = document.getElementById("mapSVG"), circles = document.querySelectorAll("circle[data-ville]"), cityItems = document.querySelectorAll(".city-list li"); let currentViewBox = [0, 25, 720, 950], currentFilter = "all", currentRegion = "all"; function setFilter(e) { currentFilter = e, document.querySelectorAll(".filter-btn").forEach(t => { t.classList.toggle("active", t.dataset.filter === e) }), applyFilters() } function applyFilters() { const e = e => "all" === currentFilter || "event" === currentFilter && "event" === e || "music" === currentFilter && "music" === e; document.querySelectorAll("circle[data-ville]").forEach(t => { const r = t.classList.contains("event") ? "event" : "music", i = t.dataset.region, n = e(r) && ("all" === currentRegion || i === currentRegion); t.classList.toggle("hidden", !n) }), document.querySelectorAll(".city-list li").forEach(t => { const r = t.dataset.type, i = t.dataset.region, n = e(r) && ("all" === currentRegion || i === currentRegion); t.classList.toggle("hidden", !n) }) } function animateViewBox(e, t, r, i, n = 600) { const [o, c, l, s] = currentViewBox, a = performance.now(); function u(d) { const m = Math.min((d - a) / n, 1), f = m < .5 ? 2 * m * m : -1 + (4 - 2 * m) * m, v = o + (e - o) * f, y = c + (t - c) * f, b = l + (r - l) * f, g = s + (i - s) * f; svg.setAttribute("viewBox", `${v} ${y} ${b} ${g}`), m < 1 ? requestAnimationFrame(u) : (currentViewBox = [e, t, r, i], applyFilters()) } requestAnimationFrame(u) } function zoomTo(e, t) { let r = 0, i = 0, n = 250, o = 400; switch (currentRegion = e, e) { case "Paris": r = 240, i = 200, o = 300, n = 270, animateViewBox(r, i, o, n); break; case "Ouest": r = 50, i = 260, o = 400, n = 510, animateViewBox(r, i, o, n); break; case "Nord": r = 200, i = 180, o = 450, n = 350, animateViewBox(r, i, o, n); break; case "Sud": r = 230, i = 465, o = 400, n = 280, animateViewBox(r, i, o, n); break; default: currentRegion = "all", resetZoom() }document.querySelectorAll(".zoom-button").forEach(e => e.classList.remove("active")), t.classList.add("active") } function resetZoom() { animateViewBox(0, 25, 720, 950) } document.addEventListener("DOMContentLoaded", () => { circles.forEach(e => { const t = e.dataset.ville; e.addEventListener("mouseenter", () => { const r = document.querySelector(`.city-list li[data-ville="${t}"]`); r && (r.classList.add("hovered"), r.scrollIntoView({ behavior: "smooth", block: "start", inline: "start" })),e.classList.add("hovered"); e.setAttribute("r", 8) }), e.addEventListener("mouseleave", () => { document.querySelector(`.city-list li[data-ville="${t}"]`)?.classList.remove("hovered"),e.classList.remove("hovered"); e.setAttribute("r", 3) }) }), cityItems.forEach(e => { const t = e.dataset.ville; e.addEventListener("mouseenter", () => { const r = document.querySelector(`circle[data-ville="${t}"]`); r && r.setAttribute("r", 8), e.classList.add("hovered"),r.classList.add("hovered"); }), e.addEventListener("mouseleave", () => { const r = document.querySelector(`circle[data-ville="${t}"]`); r && r.setAttribute("r", 3), e.classList.remove("hovered"), r.classList.remove("hovered"); }) }), applyFilters() });
     </script>
 </body>
+
 </html>
